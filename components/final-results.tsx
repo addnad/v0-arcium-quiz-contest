@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { RotateCcw } from "lucide-react"
+import { RotateCcw, ExternalLink } from "lucide-react"
 import type { QuizSection } from "@/lib/quiz-data"
 
 interface CompletedSection {
@@ -96,6 +96,19 @@ export default function FinalResults({ sections, completedSections, onRetakeQuiz
             <RotateCcw className="w-6 h-6" />
             Retake Full Quiz
           </Button>
+
+          <div className="mt-6 text-center">
+            <a
+              href="https://www.arcium.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="learn more about Arcium"
+              className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
+            >
+              Learn more about Arcium
+              <ExternalLink className="w-4 h-4" />
+            </a>
+          </div>
         </div>
       </div>
     </div>
