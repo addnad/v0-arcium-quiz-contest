@@ -29,7 +29,7 @@ export const QUIZ_SECTIONS: QuizSection[] = [
     description: "Solana-based privacy with Arcium's power",
     icon: "🔐",
     color: "from-cyan-500 to-blue-600",
-    questionCount: 4,
+    questionCount: 7,
     info: {
       headline: "Umbra: Private Transactions on Solana",
       details: [
@@ -47,7 +47,7 @@ export const QUIZ_SECTIONS: QuizSection[] = [
     description: "Private trading execution",
     icon: "🌊",
     color: "from-purple-500 to-pink-600",
-    questionCount: 4,
+    questionCount: 7,
     info: {
       headline: "Dark Pools: Protected Trading Venues",
       details: [
@@ -65,7 +65,7 @@ export const QUIZ_SECTIONS: QuizSection[] = [
     description: "Network design and core infrastructure",
     icon: "⚙️",
     color: "from-indigo-500 to-purple-600",
-    questionCount: 4,
+    questionCount: 7,
     info: {
       headline: "Arcium Architecture: The Encrypted Supercomputer",
       details: [
@@ -83,7 +83,7 @@ export const QUIZ_SECTIONS: QuizSection[] = [
     description: "Cryptographic foundations",
     icon: "🔒",
     color: "from-emerald-500 to-teal-600",
-    questionCount: 4,
+    questionCount: 7,
     info: {
       headline: "Privacy-Enhancing Technologies (PETs)",
       details: [
@@ -101,7 +101,7 @@ export const QUIZ_SECTIONS: QuizSection[] = [
     description: "Gaming, AI, DePIN, and beyond",
     icon: "🚀",
     color: "from-amber-500 to-orange-600",
-    questionCount: 4,
+    questionCount: 7,
     info: {
       headline: "Arcium Applications: Changing Industries",
       details: [
@@ -114,7 +114,6 @@ export const QUIZ_SECTIONS: QuizSection[] = [
   },
 ]
 
-// Question Pool organized by section
 const QUESTIONS_BY_SECTION: Record<string, Question[]> = {
   umbra: [
     {
@@ -155,6 +154,42 @@ const QUESTIONS_BY_SECTION: Record<string, Question[]> = {
       correctAnswer: 2,
       section: "umbra",
     },
+    {
+      id: 105,
+      question: "What does 'unlinkable' mean in the context of Umbra transactions?",
+      options: [
+        "Transactions cannot be verified",
+        "Transactions cannot be linked to the user's identity or previous transactions",
+        "Transactions are impossible to audit",
+        "Transactions cannot be processed",
+      ],
+      correctAnswer: 1,
+      section: "umbra",
+    },
+    {
+      id: 106,
+      question: "How does Umbra maintain compliance while providing privacy?",
+      options: [
+        "It doesn't - privacy and compliance are mutually exclusive",
+        "Through full auditability of transactions despite being encrypted",
+        "By storing user data on centralized servers",
+        "It shares data with regulatory authorities",
+      ],
+      correctAnswer: 1,
+      section: "umbra",
+    },
+    {
+      id: 107,
+      question: "What is the relationship between Umbra and Arcium?",
+      options: [
+        "They are competitors",
+        "Umbra is a separate unrelated project",
+        "Umbra leverages Arcium's MPC network for its privacy capabilities",
+        "Arcium is built on top of Umbra",
+      ],
+      correctAnswer: 2,
+      section: "umbra",
+    },
   ],
   darkpools: [
     {
@@ -183,20 +218,56 @@ const QUESTIONS_BY_SECTION: Record<string, Question[]> = {
     },
     {
       id: 203,
-      question: "Which type of attack does not affect confidential dark pool trading?",
+      question: "Which type of attack does Arcium dark pools mitigate?",
       options: [
         "Smart contract vulnerabilities",
-        "Front-running",
-        "Sandwich attacks",
-        "All of the above can be mitigated",
+        "Front-running and sandwich attacks",
+        "Consensus failures",
+        "Network partitions",
       ],
-      correctAnswer: 2,
+      correctAnswer: 1,
       section: "darkpools",
     },
     {
       id: 204,
       question: "Which company partners with Arcium for encrypted DeFi?",
       options: ["Uniswap", "Darklake", "1inch", "Curve"],
+      correctAnswer: 1,
+      section: "darkpools",
+    },
+    {
+      id: 205,
+      question: "What does MEV stand for?",
+      options: [
+        "Maximum Exchange Value",
+        "Market Equity Verification",
+        "Maximal Extractable Value",
+        "Multi-Exchange Vault",
+      ],
+      correctAnswer: 2,
+      section: "darkpools",
+    },
+    {
+      id: 206,
+      question: "How do dark pools prevent price manipulation?",
+      options: [
+        "They don't - price manipulation is still possible",
+        "By keeping orders private until settlement, preventing predatory trading",
+        "Through centralized price controls",
+        "By eliminating all trading",
+      ],
+      correctAnswer: 1,
+      section: "darkpools",
+    },
+    {
+      id: 207,
+      question: "What is a sandwich attack in the context of blockchain?",
+      options: [
+        "An attack on blockchain infrastructure",
+        "Placing transactions before and after a target transaction to profit",
+        "Attacking the blockchain network physically",
+        "A denial of service attack",
+      ],
       correctAnswer: 1,
       section: "darkpools",
     },
@@ -250,6 +321,37 @@ const QUESTIONS_BY_SECTION: Record<string, Question[]> = {
       correctAnswer: 2,
       section: "architecture",
     },
+    {
+      id: 305,
+      question: "How are data fragments distributed across Arx nodes?",
+      options: [
+        "Each node receives the complete data",
+        "Through secret sharing where no single node has full access",
+        "Data is stored on a centralized server",
+        "Data is not shared - each node works independently",
+      ],
+      correctAnswer: 1,
+      section: "architecture",
+    },
+    {
+      id: 306,
+      question: "What is threshold encryption in Arcium?",
+      options: [
+        "Encryption that stores all keys in one place",
+        "Encryption requiring a minimum number of authorized nodes to decrypt",
+        "Simple password-based encryption",
+        "Encryption that expires after a time limit",
+      ],
+      correctAnswer: 1,
+      section: "architecture",
+    },
+    {
+      id: 307,
+      question: "What is Arcium's Cerberus protocol designed to resist?",
+      options: ["Network latency", "Side-channel attacks", "Transaction fees", "User input errors"],
+      correctAnswer: 1,
+      section: "architecture",
+    },
   ],
   pets: [
     {
@@ -296,6 +398,42 @@ const QUESTIONS_BY_SECTION: Record<string, Question[]> = {
         "ZKPs prove statements without revealing information and complement Arcium's privacy model",
         "They replace MPC entirely",
         "They are not used in the ecosystem",
+      ],
+      correctAnswer: 1,
+      section: "pets",
+    },
+    {
+      id: 405,
+      question: "What is the importance of privacy in computing today?",
+      options: [
+        "Privacy has no importance",
+        "Protects personal data, prevents discrimination, secures proprietary information, and maintains human autonomy",
+        "Privacy is only relevant for criminals",
+        "Privacy slows down computing",
+      ],
+      correctAnswer: 1,
+      section: "pets",
+    },
+    {
+      id: 406,
+      question: "How does MPC allow data collaboration?",
+      options: [
+        "By sharing all raw data publicly",
+        "Multiple parties compute on subsets of data without revealing individual information",
+        "Through centralized data storage",
+        "By encrypting data but sharing encryption keys",
+      ],
+      correctAnswer: 1,
+      section: "pets",
+    },
+    {
+      id: 407,
+      question: "What is a Zero-Knowledge Proof?",
+      options: [
+        "A proof that reveals all information",
+        "A method to prove a statement is true without revealing the underlying information",
+        "A proof of ownership of tokens",
+        "A way to eliminate privacy",
       ],
       correctAnswer: 1,
       section: "pets",
@@ -350,11 +488,50 @@ const QUESTIONS_BY_SECTION: Record<string, Question[]> = {
       correctAnswer: 1,
       section: "applications",
     },
+    {
+      id: 505,
+      question: "What DePIN use case benefits from Arcium's privacy?",
+      options: [
+        "Public data collection only",
+        "Infrastructure networks protecting device data and network status privacy",
+        "Eliminating all data sharing",
+        "Making infrastructure completely transparent",
+      ],
+      correctAnswer: 1,
+      section: "applications",
+    },
+    {
+      id: 506,
+      question: "How does Arcium improve AI model training?",
+      options: [
+        "It slows down training",
+        "Enables training on sensitive data without exposing it to untrusted parties",
+        "It eliminates AI capabilities",
+        "By making data completely inaccessible",
+      ],
+      correctAnswer: 1,
+      section: "applications",
+    },
+    {
+      id: 507,
+      question: "What gaming assets does Arcium protect?",
+      options: [
+        "No assets - gaming doesn't benefit from privacy",
+        "In-game items, user wallets, and player profiles from unauthorized access",
+        "Only graphics files",
+        "Server infrastructure only",
+      ],
+      correctAnswer: 1,
+      section: "applications",
+    },
   ],
 }
 
-export function getQuestionsBySection(sectionId: string): Question[] {
-  return QUESTIONS_BY_SECTION[sectionId] || []
+export function getQuestionsBySection(sectionId: string, excludeIds: number[] = []): Question[] {
+  const questions = QUESTIONS_BY_SECTION[sectionId] || []
+  const filtered = questions.filter((q) => !excludeIds.includes(q.id))
+
+  return filtered.sort(() => 0.5 - Math.random())
 }
 
 export function randomizeQuestionOptions(question: Question): Question {

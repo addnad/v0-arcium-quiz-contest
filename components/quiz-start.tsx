@@ -14,13 +14,19 @@ export default function QuizStart({ onStart, sectionsCount }: QuizStartProps) {
   const [videoWatched, setVideoWatched] = useState(false)
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 py-8"
+      style={{
+        background: "linear-gradient(135deg, #6c44fc 0%, #4a2e8f 50%, #2a1a5f 100%)",
+      }}
+    >
       <div className="w-full max-w-3xl">
         {!videoWatched ? (
           <div className="flex flex-col items-center gap-6 mb-12">
             <div className="w-full max-w-2xl">
               <video
-                className="w-full rounded-2xl border border-primary/40 shadow-lg shadow-primary/30"
+                className="w-full rounded-2xl border-2 shadow-2xl"
+                style={{ borderColor: "#5de2da" }}
                 controls
                 autoPlay
                 onEnded={() => setVideoWatched(true)}
@@ -29,15 +35,15 @@ export default function QuizStart({ onStart, sectionsCount }: QuizStartProps) {
                 Your browser does not support the video tag.
               </video>
             </div>
-            <p className="text-sm text-muted-foreground text-center">Watch the introduction to get started</p>
+            <p className="text-sm text-white/70 text-center">Watch the introduction to get started</p>
           </div>
         ) : (
           <>
             {/* Arcium Logo and Header */}
             <div className="flex flex-col items-center gap-8 mb-12">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary to-accent blur-2xl opacity-30 rounded-full"></div>
-                <div className="relative bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/40 rounded-2xl p-8 backdrop-blur-sm">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-300 blur-3xl opacity-40 rounded-full"></div>
+                <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
                   <div className="flex items-center justify-center gap-3">
                     <div className="w-12 h-12 relative">
                       <Image
@@ -49,44 +55,60 @@ export default function QuizStart({ onStart, sectionsCount }: QuizStartProps) {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                        ARCIUM
-                      </h2>
-                      <p className="text-xs text-muted-foreground font-medium tracking-wide">Encrypted Supercomputer</p>
+                      <h2 className="text-2xl font-bold text-white">ARCIUM</h2>
+                      <p className="text-xs text-cyan-300 font-medium tracking-widest">Encrypted Supercomputer</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Title and Description */}
-              <div className="text-center space-y-3">
-                <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-pulse">
+              <div className="text-center space-y-4">
+                <h1
+                  className="text-5xl md:text-6xl lg:text-7xl font-bold text-white"
+                  style={{
+                    letterSpacing: "-0.003rem",
+                    textShadow: "0 0 30px rgba(93, 226, 218, 0.3)",
+                  }}
+                >
                   Knowledge Quiz
                 </h1>
-                <p className="text-base md:text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
+                <p className="text-base md:text-lg text-white/80 max-w-md mx-auto leading-relaxed font-light">
                   Test your knowledge about Arcium's confidential computing network and ecosystem
                 </p>
+
+                <div className="mt-8 pt-8 border-t border-white/20">
+                  <p className="text-sm md:text-base text-white/70 leading-relaxed max-w-md mx-auto font-light">
+                    Created with passion by a community contributor dedicated to advancing confidential computing
+                    education. Join the conversation and share your knowledge!
+                  </p>
+                  <div className="text-sm md:text-base text-cyan-300 font-semibold mt-4 space-y-1">
+                    <div>Discord: 1stbernice</div>
+                    <div>X: @1st_bernice</div>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Start Button */}
-            <div className="flex justify-center">
+            <div className="flex justify-center mb-8">
               <Button
                 onClick={onStart}
                 size="lg"
-                className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground px-8 py-7 text-lg rounded-full font-semibold inline-flex items-center gap-3 transition-all hover:scale-110 active:scale-95 shadow-lg shadow-primary/50"
+                className="bg-gradient-to-r from-cyan-400 to-blue-400 hover:from-cyan-300 hover:to-blue-300 text-gray-900 px-10 py-3 text-lg rounded-full font-bold inline-flex items-center gap-3 transition-all hover:scale-110 active:scale-95 shadow-2xl"
+                style={{ boxShadow: "0 0 30px rgba(93, 226, 218, 0.4)" }}
               >
                 <Play className="w-6 h-6" />
                 Start Quiz
               </Button>
             </div>
 
-            {/* Info Footer - Updated to reflect 5 sections with 20 questions */}
-            <div className="mt-12 text-center">
-              <p className="text-sm text-muted-foreground">
+            {/* Info Footer */}
+            <div className="mt-12 text-center space-y-2">
+              <p className="text-sm md:text-base text-white/80">
                 {sectionsCount} sections • 20 questions total • 20 seconds per question
               </p>
-              <p className="text-xs text-muted-foreground mt-2 opacity-75">
+              <p className="text-xs md:text-sm text-white/60">
                 Learn about Umbra, Dark Pools, Architecture, PETs, and Real-World Applications
               </p>
             </div>
