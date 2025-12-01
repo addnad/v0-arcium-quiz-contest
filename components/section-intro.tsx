@@ -12,31 +12,23 @@ interface SectionIntroProps {
 export default function SectionIntro({ section, onStart }: SectionIntroProps) {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-3xl">
+      <div className="w-full max-w-4xl">
         {/* Section Card */}
         <div className={`bg-gradient-to-br ${section.color} rounded-2xl p-1 mb-8`}>
-          <div className="bg-slate-950 rounded-2xl p-12 md:p-16">
+          <div className="bg-slate-950 rounded-2xl p-8 md:p-12">
             {/* Icon */}
-            <div className="text-6xl md:text-7xl mb-6">{section.icon}</div>
+            <div className="text-5xl md:text-6xl mb-6">{section.icon}</div>
 
             {/* Title */}
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{section.title}</h1>
 
             {/* Headline */}
-            <p className="text-lg md:text-xl text-gray-300 font-semibold mb-8">{section.info.headline}</p>
+            <p className="text-lg md:text-xl text-cyan-300 font-semibold mb-8">{section.info.headline}</p>
 
-            {/* Details */}
-            <div className="space-y-4 mb-8">
-              {section.info.details.map((detail, index) => (
-                <div key={index} className="flex gap-4">
-                  <div
-                    className={`w-6 h-6 rounded-full bg-gradient-to-br ${section.color} flex-shrink-0 flex items-center justify-center text-white text-sm font-bold`}
-                  >
-                    {index + 1}
-                  </div>
-                  <p className="text-gray-300 leading-relaxed">{detail}</p>
-                </div>
-              ))}
+            <div className="mb-8 prose-invert max-w-none">
+              <p className="text-gray-300 leading-relaxed text-base md:text-lg mb-6 text-justify">
+                {section.info.description}
+              </p>
             </div>
 
             {/* Questions Info */}

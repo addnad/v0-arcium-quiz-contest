@@ -16,7 +16,7 @@ export interface QuizSection {
   questionCount: number
   info: {
     headline: string
-    details: string[]
+    description: string
   }
 }
 
@@ -32,12 +32,8 @@ export const QUIZ_SECTIONS: QuizSection[] = [
     questionCount: 7,
     info: {
       headline: "Umbra: Private Transactions on Solana",
-      details: [
-        "Umbra is a Solana-based privacy protocol that leverages Arcium's Multi-Party Computation network",
-        "It enables encrypted, unlinkable transactions that maintain full auditability for compliance",
-        "Transaction data remains confidential while settlement happens on-chain",
-        "Built to launch alongside Arcium's Mainnet Alpha for seamless integration",
-      ],
+      description:
+        "Umbra represents a groundbreaking shift in how transactions can be conducted on the Solana blockchain. Built specifically to leverage Arcium's Multi-Party Computation network, Umbra enables users to execute transactions with complete privacy while maintaining the transparency needed for compliance. At its core, Umbra encrypts transaction data, making it unlinkable—meaning observers cannot connect transactions to specific addresses or patterns. The protocol settles transactions on-chain while keeping all sensitive details confidential. This unique combination of privacy and auditability addresses a critical gap in the DeFi ecosystem, where traders need protection from surveillance without sacrificing regulatory compliance. Umbra is poised to launch alongside Arcium's Mainnet Alpha, bringing institutional-grade privacy to everyday Solana users and enabling a new class of confidential financial applications.",
     },
   },
   {
@@ -50,12 +46,8 @@ export const QUIZ_SECTIONS: QuizSection[] = [
     questionCount: 7,
     info: {
       headline: "Dark Pools: Protected Trading Venues",
-      details: [
-        "Dark pools enable confidential order execution without exposing trade details to predators",
-        "Protection from MEV (Maximal Extractable Value), front-running, and sandwich attacks",
-        "Orders remain private until settlement, preventing market manipulation",
-        "Projects like Darklake partner with Arcium for end-to-end encrypted DeFi",
-      ],
+      description:
+        "Dark pools in decentralized finance represent a paradigm shift in how large trades are executed and settled. Traditionally, transparent order books expose every trade to the network, enabling sophisticated attackers to manipulate prices through front-running, sandwich attacks, and MEV extraction. Dark pools solve this by moving order execution into a confidential environment where trades remain hidden until completion. This strategic privacy prevents copy-traders from mimicking positions, protects sensitive trading strategies from competitors, and shields participants from predatory trading algorithms. Projects like Darklake are pioneering this space by partnering with Arcium to deliver end-to-end encrypted trading. The result is a protected venue where institutional and retail traders can execute large positions without market impact or malicious extraction. Dark pools are essential infrastructure for serious DeFi participants who cannot tolerate transparent execution and represent the future of competitive markets.",
     },
   },
   {
@@ -68,12 +60,8 @@ export const QUIZ_SECTIONS: QuizSection[] = [
     questionCount: 7,
     info: {
       headline: "Arcium Architecture: The Encrypted Supercomputer",
-      details: [
-        "Arx Nodes: Decentralized compute points requiring staking with penalties for misbehavior",
-        "MXEs (Multiparty eXecution Environments): Virtual, encrypted spaces for secure computation",
-        "Parallel execution model enables multiple independent computations simultaneously",
-        "Secret sharing distributes data across nodes—no single point has full access",
-      ],
+      description:
+        "Arcium's architecture represents a fundamental reimagining of how decentralized computation can be performed securely. At the foundation are Arx Nodes—specialized network participants that stake collateral to participate in computation and are economically penalized for misbehavior. These nodes don't simply execute code; they participate in sophisticated Multi-Party Computation protocols where computation happens on encrypted data, and no single node ever has access to unencrypted inputs. Computations occur within MXEs (Multiparty eXecution Environments), which are dynamic virtual spaces where computation customers define their security parameters. The network supports a revolutionary parallel execution model where multiple independent computations run simultaneously with complete isolation, unlocking unprecedented throughput. Data protection relies on secret sharing—sensitive information is split into cryptographic shares distributed across Arx Nodes, requiring a minimum threshold to reconstruct. The Cerberus protocol adds an additional layer of defense against side-channel attacks. This architecture transforms blockchain from a transparent-by-default system into a programmable encrypted supercomputer where privacy and computation coexist.",
     },
   },
   {
@@ -86,12 +74,8 @@ export const QUIZ_SECTIONS: QuizSection[] = [
     questionCount: 7,
     info: {
       headline: "Privacy-Enhancing Technologies (PETs)",
-      details: [
-        "PETs are tools enabling data analysis without exposing personal or proprietary information",
-        "Multi-Party Computation (MPC) allows multiple parties to jointly compute while keeping inputs private",
-        "Homomorphic encryption enables computation directly on encrypted data",
-        "Zero-Knowledge Proofs verify statements without revealing the underlying information",
-      ],
+      description:
+        "Privacy-Enhancing Technologies (PETs) form the cryptographic bedrock enabling modern confidential computing. Unlike traditional privacy approaches that rely on obscurity, PETs use advanced mathematics to prove security guarantees. Multi-Party Computation (MPC) allows multiple distrusting parties to jointly compute a result without revealing their individual inputs—imagine calculating an average salary across a company without anyone seeing anyone else's compensation. Homomorphic encryption takes this further, enabling computation directly on encrypted data; results are encrypted and only decryptable by authorized parties. Zero-Knowledge Proofs represent another pillar: you can prove you possess certain knowledge or satisfy certain conditions without revealing the information itself—crucial for compliance without sacrificing privacy. These technologies work together in systems like Arcium to create environments where data remains encrypted throughout its lifecycle while still being useful for computation, analysis, and business logic. Understanding PETs is essential for grasping how confidential computing can deliver on the promise of data utility without privacy compromise.",
     },
   },
   {
@@ -104,12 +88,8 @@ export const QUIZ_SECTIONS: QuizSection[] = [
     questionCount: 7,
     info: {
       headline: "Arcium Applications: Changing Industries",
-      details: [
-        "Gaming: Protect in-game assets and player data while maintaining game integrity",
-        "AI/ML: Train models on encrypted enterprise data without exposing sensitive information",
-        "DePIN: Decentralized Physical Infrastructure Networks with privacy protection",
-        "Healthcare: Privacy-preserving medical research without revealing individual data",
-      ],
+      description:
+        "Arcium's applications span a wide range of industries, transforming how data is handled and processed while maintaining privacy. In gaming, Arcium protects in-game assets, user wallets, and player profiles from unauthorized access, ensuring a secure environment without compromising game integrity. For AI and machine learning, Arcium enables training on encrypted enterprise data, allowing companies to analyze sensitive information securely and without exposing it to untrusted parties. DePIN, or Decentralized Physical Infrastructure Networks, uses Arcium's privacy capabilities to protect critical infrastructure data, ensuring that network status and device information remain confidential. In healthcare, Arcium facilitates privacy-preserving medical research, allowing scientists to collaborate on data without revealing individual patient information. These applications demonstrate Arcium's versatility in creating secure, private environments for various use cases, from gaming and AI to infrastructure and medical research.",
     },
   },
 ]
