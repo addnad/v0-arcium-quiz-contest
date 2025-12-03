@@ -159,8 +159,24 @@
   }
 }
 
+/* Added floating animation for fortress cards */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 @layer utilities {
   .animate-fade-out {
     animation: fadeOut 0.6s ease-out forwards;
+  }
+
+  /* Added float animation utility */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
   }
 }
