@@ -5,7 +5,8 @@ import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Loader2 } from "lucide-react"
+import { checkUsernameExists } from "@/lib/global-leaderboard"
 
 interface UsernamePromptProps {
   onSubmit: (username: string) => void
@@ -14,8 +15,9 @@ interface UsernamePromptProps {
 export default function UsernamePrompt({ onSubmit }: UsernamePromptProps) {
   const [username, setUsername] = useState("")
   const [error, setError] = useState("")
+  const [isChecking, setIsChecking] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     const trimmed = username.trim()
@@ -35,6 +37,15 @@ export default function UsernamePrompt({ onSubmit }: UsernamePromptProps) {
       return
     }
 
+    setIsChecking(true)
+    const exists = await checkUsernameExists(trimmed)
+    setIsChecking(false)
+
+    if (exists) {
+      setError("Username already taken. Please choose another one.")
+      return
+    }
+
     onSubmit(trimmed)
   }
 
@@ -49,7 +60,7 @@ export default function UsernamePrompt({ onSubmit }: UsernamePromptProps) {
             👤
           </div>
           <h2 className="text-3xl font-bold text-white mb-3">Welcome to Arcium Games!</h2>
-          <p className="text-white/70 text-sm">Choose a unique username to track your progress</p>
+          <p className="text-white/70 text-sm">Choose a unique username to compete globally</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -64,6 +75,7 @@ export default function UsernamePrompt({ onSubmit }: UsernamePromptProps) {
               placeholder="Enter your username"
               className="w-full bg-white/10 border-white/20 text-white placeholder:text-white/50 text-lg px-4 py-6 rounded-xl focus:border-cyan-400 transition-colors"
               maxLength={20}
+              disabled={isChecking}
             />
             {error && (
               <div className="flex items-center gap-2 mt-3 text-red-300 text-sm">
@@ -75,13 +87,21 @@ export default function UsernamePrompt({ onSubmit }: UsernamePromptProps) {
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-bold py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all"
+            disabled={isChecking}
+            className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-bold py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
           >
-            Start Playing
+            {isChecking ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Checking...
+              </>
+            ) : (
+              "Start Playing"
+            )}
           </Button>
         </form>
 
-        <div className="mt-6 text-center text-xs text-white/50">Your progress will be saved locally on this device</div>
+        <div className="mt-6 text-center text-xs text-white/50">Compete globally with players worldwide</div>
       </div>
     </div>
   )

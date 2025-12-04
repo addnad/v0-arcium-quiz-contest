@@ -100,10 +100,19 @@ export default function GamesHub({ onBack }: GamesHubProps) {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <Button onClick={onBack} variant="ghost" className="text-white hover:bg-white/10 transition-colors">
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Features
-          </Button>
+          <button
+            onClick={onBack}
+            className="group relative overflow-hidden px-6 py-3 rounded-2xl transition-all hover:scale-105"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-purple-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"></div>
+            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+              <span>
+                Back to <span className="text-cyan-300 font-semibold">{"<encrypted>"}</span> World
+              </span>
+            </div>
+          </button>
           <div className="text-white/80 text-sm">
             Welcome, <span className="font-bold text-cyan-300">{userProfile.username}</span>
           </div>

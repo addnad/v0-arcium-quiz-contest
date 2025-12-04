@@ -1,3 +1,5 @@
+import { submitScore as submitScoreToSupabase } from "@/lib/global-leaderboard"
+
 export interface UserProfile {
   username: string
   createdAt: number
@@ -20,9 +22,7 @@ export interface Achievement {
 
 const STORAGE_KEYS = {
   USER_PROFILE: "arcium_user_profile",
-  LEADERBOARD: "arcium_leaderboard",
   ACHIEVEMENTS: "arcium_achievements",
-  ALL_USERNAMES: "arcium_all_usernames",
 }
 
 // User Profile Management
@@ -35,65 +35,23 @@ export function getUserProfile(): UserProfile | null {
 export function setUserProfile(username: string): boolean {
   if (typeof window === "undefined") return false
 
-  // Check if username already exists
-  const allUsernames = getAllUsernames()
-  if (allUsernames.includes(username.toLowerCase())) {
-    return false
-  }
-
   const profile: UserProfile = {
     username,
     createdAt: Date.now(),
   }
 
   localStorage.setItem(STORAGE_KEYS.USER_PROFILE, JSON.stringify(profile))
-
-  // Add to all usernames list
-  allUsernames.push(username.toLowerCase())
-  localStorage.setItem(STORAGE_KEYS.ALL_USERNAMES, JSON.stringify(allUsernames))
-
   return true
 }
 
-function getAllUsernames(): string[] {
-  if (typeof window === "undefined") return []
-  const stored = localStorage.getItem(STORAGE_KEYS.ALL_USERNAMES)
-  return stored ? JSON.parse(stored) : []
-}
-
 // Leaderboard Management
-export function getLeaderboard(gameType?: string): GameScore[] {
-  if (typeof window === "undefined") return []
-  const stored = localStorage.getItem(STORAGE_KEYS.LEADERBOARD)
-  const allScores: GameScore[] = stored ? JSON.parse(stored) : []
-
-  if (gameType) {
-    return allScores
-      .filter((score) => score.gameType === gameType)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 10)
-  }
-
-  return allScores.sort((a, b) => b.score - a.score).slice(0, 10)
-}
-
-export function addScore(score: number, gameType: string): void {
+export async function addScore(score: number, gameType: string): Promise<void> {
   if (typeof window === "undefined") return
   const profile = getUserProfile()
   if (!profile) return
 
-  const stored = localStorage.getItem(STORAGE_KEYS.LEADERBOARD)
-  const scores: GameScore[] = stored ? JSON.parse(stored) : []
-
-  const newScore: GameScore = {
-    username: profile.username,
-    score,
-    timestamp: Date.now(),
-    gameType,
-  }
-
-  scores.push(newScore)
-  localStorage.setItem(STORAGE_KEYS.LEADERBOARD, JSON.stringify(scores))
+  // Submit to Supabase global leaderboard
+  await submitScoreToSupabase(profile.username, gameType, score)
 }
 
 // Achievement Management

@@ -21,10 +21,16 @@ export default function QuizStart({ onStart, sectionsCount, onBack }: QuizStartP
       <div className="w-full max-w-3xl">
         <button
           onClick={onBack}
-          className="mb-8 flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+          className="mb-8 group relative overflow-hidden px-6 py-3 rounded-2xl transition-all hover:scale-105"
         >
-          <ArrowLeft className="w-5 h-5" />
-          Back to Features
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-purple-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"></div>
+          <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="relative flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+            <span>
+              Back to <span className="text-cyan-300 font-semibold">{"<encrypted>"}</span> World
+            </span>
+          </div>
         </button>
 
         <div className="flex flex-col items-center gap-10 mb-12">
