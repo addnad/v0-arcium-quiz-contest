@@ -8,7 +8,6 @@ import { Card } from "@/components/ui/card"
 import { ArrowLeft, Download, Upload } from "lucide-react"
 import { getUserProfile } from "@/lib/game-storage"
 import { getOverallLeaderboard } from "@/lib/global-leaderboard"
-import html2canvas from "html2canvas"
 
 function SocialCardGenerator({ onBack }: { onBack: () => void }) {
   const [profileImage, setProfileImage] = useState<string | null>(null)
@@ -54,52 +53,325 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
   }
 
   const handleDownload = async () => {
-    if (!cardRef.current || !profileImage) {
+    if (!profileImage) {
       alert("Please upload a profile picture first")
       return
     }
 
     try {
-      // Wait a bit for any animations to settle
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      // Create a canvas
+      const canvas = document.createElement("canvas")
+      const ctx = canvas.getContext("2d")
+      if (!ctx) return
 
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 2,
-        backgroundColor: null,
-        logging: true,
-        useCORS: true,
-        allowTaint: true,
-        imageTimeout: 0,
-        onclone: (clonedDoc) => {
-          // Ensure all images are loaded in the cloned document
-          const clonedCard = clonedDoc.querySelector('[data-card="true"]')
-          if (clonedCard) {
-            ;(clonedCard as HTMLElement).style.transform = "none"
-          }
-        },
+      // Set canvas size (800x800 for good quality)
+      const size = 800
+      canvas.width = size
+      canvas.height = size
+
+      // Load profile image
+      const profileImg = new Image()
+      profileImg.crossOrigin = "anonymous"
+
+      await new Promise((resolve, reject) => {
+        profileImg.onload = resolve
+        profileImg.onerror = reject
+        profileImg.src = profileImage
       })
 
-      // Convert canvas to blob
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            alert("Failed to create image. Please try again.")
-            return
+      // Load Arcium logo
+      const logoImg = new Image()
+      logoImg.crossOrigin = "anonymous"
+
+      await new Promise((resolve, reject) => {
+        logoImg.onload = resolve
+        logoImg.onerror = reject
+        logoImg.src = "/images/arcium-logo.png"
+      })
+
+      // Draw based on selected template
+      if (selectedTemplate === "gradient") {
+        // Gradient background
+        const gradient = ctx.createLinearGradient(0, 0, size, size)
+        gradient.addColorStop(0, "#06b6d4") // cyan-500
+        gradient.addColorStop(0.5, "#a855f7") // purple-500
+        gradient.addColorStop(1, "#ec4899") // pink-500
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, 0, size, size)
+
+        // Pattern overlay
+        ctx.globalAlpha = 0.1
+        ctx.fillStyle = "#ffffff"
+        for (let x = 0; x < size; x += 20) {
+          for (let y = 0; y < size; y += 20) {
+            ctx.beginPath()
+            ctx.arc(x, y, 1, 0, Math.PI * 2)
+            ctx.fill()
           }
+        }
+        ctx.globalAlpha = 1
 
-          // Create download link
-          const url = URL.createObjectURL(blob)
-          const link = document.createElement("a")
-          link.download = `arcium-${username}-card.png`
-          link.href = url
-          link.click()
+        // Profile image (circular)
+        const profileSize = 128
+        const profileX = size / 2
+        const profileY = 280
+        ctx.save()
+        ctx.beginPath()
+        ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
+        ctx.closePath()
+        ctx.clip()
+        ctx.drawImage(profileImg, profileX - profileSize / 2, profileY - profileSize / 2, profileSize, profileSize)
+        ctx.restore()
 
-          // Cleanup
-          setTimeout(() => URL.revokeObjectURL(url), 100)
-        },
-        "image/png",
-        1.0,
-      )
+        // White border around profile
+        ctx.strokeStyle = "#ffffff"
+        ctx.lineWidth = 4
+        ctx.beginPath()
+        ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
+        ctx.stroke()
+
+        // Username
+        ctx.fillStyle = "#ffffff"
+        ctx.font = "bold 48px sans-serif"
+        ctx.textAlign = "center"
+        ctx.fillText(username || "Your Name", size / 2, 420)
+
+        // Subtitle
+        ctx.font = "16px sans-serif"
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)"
+        ctx.fillText("Privacy Pioneer", size / 2, 450)
+
+        // Stats box background
+        const boxY = 500
+        const boxHeight = 120
+        ctx.fillStyle = "rgba(255, 255, 255, 0.1)"
+        ctx.fillRect(64, boxY, size - 128, boxHeight)
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)"
+        ctx.lineWidth = 1
+        ctx.strokeRect(64, boxY, size - 128, boxHeight)
+
+        // Stats
+        const statY = boxY + 50
+        ctx.font = "bold 32px sans-serif"
+        ctx.fillStyle = "#ffffff"
+
+        // Rank
+        ctx.fillText(`#${rank || "--"}`, 200, statY)
+        ctx.font = "12px sans-serif"
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
+        ctx.fillText("Rank", 200, statY + 25)
+
+        // Score
+        ctx.font = "bold 32px sans-serif"
+        ctx.fillStyle = "#ffffff"
+        ctx.fillText(totalScore.toLocaleString(), size / 2, statY)
+        ctx.font = "12px sans-serif"
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
+        ctx.fillText("Score", size / 2, statY + 25)
+
+        // Games
+        ctx.font = "bold 32px sans-serif"
+        ctx.fillStyle = "#ffffff"
+        ctx.fillText(gamesPlayed.toString(), 600, statY)
+        ctx.font = "12px sans-serif"
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
+        ctx.fillText("Games", 600, statY + 25)
+
+        // Logo and branding
+        const logoSize = 24
+        const brandingY = 690
+        ctx.drawImage(logoImg, size / 2 - 100, brandingY, logoSize, logoSize)
+        ctx.font = "bold 18px sans-serif"
+        ctx.fillStyle = "#ffffff"
+        ctx.textAlign = "left"
+        ctx.fillText("Arcium Quiz Contest", size / 2 - 70, brandingY + 18)
+      } else if (selectedTemplate === "minimal") {
+        // White background
+        ctx.fillStyle = "#ffffff"
+        ctx.fillRect(0, 0, size, size)
+
+        // Profile image (circular)
+        const profileSize = 128
+        const profileX = size / 2
+        const profileY = 280
+        ctx.save()
+        ctx.beginPath()
+        ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
+        ctx.closePath()
+        ctx.clip()
+        ctx.drawImage(profileImg, profileX - profileSize / 2, profileY - profileSize / 2, profileSize, profileSize)
+        ctx.restore()
+
+        // Gray border around profile
+        ctx.strokeStyle = "#e5e7eb"
+        ctx.lineWidth = 4
+        ctx.beginPath()
+        ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
+        ctx.stroke()
+
+        // Username
+        ctx.fillStyle = "#111827"
+        ctx.font = "bold 48px sans-serif"
+        ctx.textAlign = "center"
+        ctx.fillText(username || "Your Name", size / 2, 420)
+
+        // Subtitle
+        ctx.font = "16px sans-serif"
+        ctx.fillStyle = "#6b7280"
+        ctx.fillText("Privacy Pioneer", size / 2, 450)
+
+        // Stats box background
+        const boxY = 500
+        const boxHeight = 120
+        ctx.strokeStyle = "#e5e7eb"
+        ctx.lineWidth = 2
+        ctx.strokeRect(64, boxY, size - 128, boxHeight)
+
+        // Stats
+        const statY = boxY + 50
+        ctx.font = "bold 32px sans-serif"
+        ctx.fillStyle = "#111827"
+
+        // Rank
+        ctx.fillText(`#${rank || "--"}`, 200, statY)
+        ctx.font = "12px sans-serif"
+        ctx.fillStyle = "#6b7280"
+        ctx.fillText("Rank", 200, statY + 25)
+
+        // Score
+        ctx.font = "bold 32px sans-serif"
+        ctx.fillStyle = "#111827"
+        ctx.fillText(totalScore.toLocaleString(), size / 2, statY)
+        ctx.font = "12px sans-serif"
+        ctx.fillStyle = "#6b7280"
+        ctx.fillText("Score", size / 2, statY + 25)
+
+        // Games
+        ctx.font = "bold 32px sans-serif"
+        ctx.fillStyle = "#111827"
+        ctx.fillText(gamesPlayed.toString(), 600, statY)
+        ctx.font = "12px sans-serif"
+        ctx.fillStyle = "#6b7280"
+        ctx.fillText("Games", 600, statY + 25)
+
+        // Logo and branding
+        const logoSize = 24
+        const brandingY = 690
+        ctx.drawImage(logoImg, size / 2 - 100, brandingY, logoSize, logoSize)
+        ctx.font = "bold 18px sans-serif"
+        ctx.fillStyle = "#111827"
+        ctx.textAlign = "left"
+        ctx.fillText("Arcium Quiz Contest", size / 2 - 70, brandingY + 18)
+      } else if (selectedTemplate === "bold") {
+        // Dark background
+        ctx.fillStyle = "#111827"
+        ctx.fillRect(0, 0, size, size)
+
+        // Electric effect lines
+        const gradient1 = ctx.createLinearGradient(0, 0, size, 0)
+        gradient1.addColorStop(0, "transparent")
+        gradient1.addColorStop(0.5, "#06b6d4")
+        gradient1.addColorStop(1, "transparent")
+        ctx.fillStyle = gradient1
+        ctx.globalAlpha = 0.5
+        ctx.fillRect(0, 0, size, 4)
+        ctx.fillRect(0, size - 4, size, 4)
+        ctx.globalAlpha = 1
+
+        // Profile image (circular)
+        const profileSize = 128
+        const profileX = size / 2
+        const profileY = 280
+        ctx.save()
+        ctx.beginPath()
+        ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
+        ctx.closePath()
+        ctx.clip()
+        ctx.drawImage(profileImg, profileX - profileSize / 2, profileY - profileSize / 2, profileSize, profileSize)
+        ctx.restore()
+
+        // Cyan border around profile
+        ctx.strokeStyle = "#06b6d4"
+        ctx.lineWidth = 4
+        ctx.beginPath()
+        ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
+        ctx.stroke()
+
+        // Username
+        ctx.fillStyle = "#ffffff"
+        ctx.font = "bold 48px sans-serif"
+        ctx.textAlign = "center"
+        ctx.fillText(username || "Your Name", size / 2, 420)
+
+        // Subtitle
+        ctx.font = "16px sans-serif"
+        ctx.fillStyle = "#06b6d4"
+        ctx.fillText("Privacy Pioneer", size / 2, 450)
+
+        // Stats box background (gradient)
+        const boxY = 500
+        const boxHeight = 120
+        const boxGradient = ctx.createLinearGradient(64, boxY, size - 64, boxY)
+        boxGradient.addColorStop(0, "rgba(6, 182, 212, 0.2)")
+        boxGradient.addColorStop(1, "rgba(168, 85, 247, 0.2)")
+        ctx.fillStyle = boxGradient
+        ctx.fillRect(64, boxY, size - 128, boxHeight)
+        ctx.strokeStyle = "rgba(6, 182, 212, 0.5)"
+        ctx.lineWidth = 2
+        ctx.strokeRect(64, boxY, size - 128, boxHeight)
+
+        // Stats
+        const statY = boxY + 50
+        ctx.font = "bold 32px sans-serif"
+        ctx.fillStyle = "#06b6d4"
+
+        // Rank
+        ctx.fillText(`#${rank || "--"}`, 200, statY)
+        ctx.font = "12px sans-serif"
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
+        ctx.fillText("Rank", 200, statY + 25)
+
+        // Score
+        ctx.font = "bold 32px sans-serif"
+        ctx.fillStyle = "#06b6d4"
+        ctx.fillText(totalScore.toLocaleString(), size / 2, statY)
+        ctx.font = "12px sans-serif"
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
+        ctx.fillText("Score", size / 2, statY + 25)
+
+        // Games
+        ctx.font = "bold 32px sans-serif"
+        ctx.fillStyle = "#06b6d4"
+        ctx.fillText(gamesPlayed.toString(), 600, statY)
+        ctx.font = "12px sans-serif"
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
+        ctx.fillText("Games", 600, statY + 25)
+
+        // Logo and branding
+        const logoSize = 24
+        const brandingY = 690
+        ctx.drawImage(logoImg, size / 2 - 100, brandingY, logoSize, logoSize)
+        ctx.font = "bold 18px sans-serif"
+        ctx.fillStyle = "#ffffff"
+        ctx.textAlign = "left"
+        ctx.fillText("Arcium Quiz Contest", size / 2 - 70, brandingY + 18)
+      }
+
+      // Convert to blob and download
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          alert("Failed to create image. Please try again.")
+          return
+        }
+
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.download = `arcium-${username}-${selectedTemplate}-card.png`
+        link.href = url
+        link.click()
+
+        setTimeout(() => URL.revokeObjectURL(url), 100)
+      }, "image/png")
     } catch (error) {
       console.error("Download error:", error)
       alert("Failed to download card. Please try again.")
@@ -280,7 +552,55 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
                     ref={cardRef}
                     data-card="true"
                     className="aspect-square bg-white rounded-3xl p-8 relative overflow-hidden"
-                  ></div>
+                  >
+                    <div className="relative h-full flex flex-col">
+                      {/* Profile Section */}
+                      <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                        <div className="w-32 h-32 rounded-full border-4 border-gray-200 overflow-hidden bg-gray-100">
+                          {profileImage ? (
+                            <img
+                              src={profileImage || "/placeholder.svg"}
+                              alt="Profile"
+                              className="w-full h-full object-cover"
+                              crossOrigin="anonymous"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-4xl">
+                              👤
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-center">
+                          <h2 className="text-3xl font-bold text-gray-900 mb-1">{username || "Your Name"}</h2>
+                          <p className="text-gray-600 text-sm">Privacy Pioneer</p>
+                        </div>
+                      </div>
+
+                      {/* Stats Section */}
+                      <div className="border-2 border-gray-200 rounded-2xl p-6">
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div>
+                            <div className="text-2xl font-bold text-gray-900">#{rank || "--"}</div>
+                            <div className="text-gray-600 text-xs">Rank</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-gray-900">{totalScore.toLocaleString()}</div>
+                            <div className="text-gray-600 text-xs">Score</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-gray-900">{gamesPlayed}</div>
+                            <div className="text-gray-600 text-xs">Games</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Branding */}
+                      <div className="mt-6 flex items-center justify-center gap-2">
+                        <img src="/images/arcium-logo.png" alt="Arcium" className="w-6 h-6" crossOrigin="anonymous" />
+                        <span className="text-gray-900 font-semibold">Arcium Quiz Contest</span>
+                      </div>
+                    </div>
+                  </div>
                 )}
 
                 {/* Bold Template */}
