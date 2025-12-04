@@ -23,6 +23,7 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
   const [gameActive, setGameActive] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const [elapsedTime, setElapsedTime] = useState(0)
+  const [isMobile, setIsMobile] = useState(false)
   const nextIdRef = useRef(0)
   const spawnIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -31,6 +32,15 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
 
   const getFallSpeed = () => (elapsedTime > 30 ? 4.5 : 2.5)
   const getSpawnInterval = () => (elapsedTime > 30 ? 500 : 900)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   const spawnItem = useCallback(() => {
     const isKey = Math.random() > 0.25
@@ -119,27 +129,13 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
     return () => window.removeEventListener("keydown", handleKeyPress)
   }, [gameActive])
 
-  useEffect(() => {
-    if (!gameActive) return
+  const moveLeft = () => {
+    setPlayerX((x) => Math.max(0, x - 8))
+  }
 
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        const touch = e.touches[0]
-        const gameArea = document.getElementById("game-area")
-        if (gameArea) {
-          const rect = gameArea.getBoundingClientRect()
-          const relativeX = ((touch.clientX - rect.left) / rect.width) * 100
-          setPlayerX(Math.max(0, Math.min(90, relativeX - 8)))
-        }
-      }
-    }
-
-    const gameArea = document.getElementById("game-area")
-    if (gameArea) {
-      gameArea.addEventListener("touchmove", handleTouchMove)
-      return () => gameArea.removeEventListener("touchmove", handleTouchMove)
-    }
-  }, [gameActive])
+  const moveRight = () => {
+    setPlayerX((x) => Math.min(90, x + 8))
+  }
 
   const startGame = () => {
     setScore(0)
@@ -230,7 +226,7 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
         <div
           id="game-area"
           className="relative bg-white/10 backdrop-blur-xl rounded-3xl border-2 border-white/20 overflow-hidden touch-none"
-          style={{ height: "600px" }}
+          style={{ height: isMobile ? "400px" : "600px" }}
         >
           {items.map((item) => (
             <div
@@ -246,14 +242,35 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
           ))}
 
           <div
-            className="absolute bottom-4 w-20 h-20 bg-gradient-to-br from-cyan-400 to-blue-400 rounded-2xl flex items-center justify-center text-3xl transition-all"
+            className={`absolute bottom-4 bg-gradient-to-br from-cyan-400 to-blue-400 rounded-2xl flex items-center justify-center transition-all ${
+              isMobile ? "w-16 h-16 text-2xl" : "w-20 h-20 text-3xl"
+            }`}
             style={{ left: `${playerX}%` }}
           >
             🪣
           </div>
         </div>
 
-        <p className="text-center text-white/70 mt-4">Use ← → arrow keys or touch/drag to move</p>
+        {isMobile ? (
+          <div className="flex gap-4 justify-center mt-6">
+            <Button
+              onTouchStart={moveLeft}
+              onClick={moveLeft}
+              className="w-24 h-24 bg-white/20 hover:bg-white/30 active:bg-white/40 backdrop-blur-xl border-2 border-white/30 rounded-2xl text-4xl"
+            >
+              ←
+            </Button>
+            <Button
+              onTouchStart={moveRight}
+              onClick={moveRight}
+              className="w-24 h-24 bg-white/20 hover:bg-white/30 active:bg-white/40 backdrop-blur-xl border-2 border-white/30 rounded-2xl text-4xl"
+            >
+              →
+            </Button>
+          </div>
+        ) : (
+          <p className="text-center text-white/70 mt-4">Use ← → arrow keys to move</p>
+        )}
       </div>
     </div>
   )
