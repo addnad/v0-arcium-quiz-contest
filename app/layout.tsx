@@ -12,8 +12,8 @@ export const metadata: Metadata = {
   description: "Test your knowledge about Arcium's confidential computing network",
   generator: "v0.app",
   icons: {
-    icon: "/images/arcium-logo.png",
-    apple: "/images/arcium-logo.png",
+    icon: "/images/site-logo.jpeg",
+    apple: "/images/site-logo.jpeg",
   },
 }
 

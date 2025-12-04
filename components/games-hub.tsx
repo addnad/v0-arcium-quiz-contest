@@ -10,6 +10,7 @@ import PrivacyPath from "./games/privacy-path"
 import KeyCatcher from "./games/key-catcher"
 import PrivacySpellingBee from "./games/privacy-spelling-bee"
 import ThreatDetector from "./games/threat-detector"
+import DataFlow from "./games/data-flow"
 import UsernamePrompt from "./username-prompt"
 import Leaderboard from "./leaderboard"
 import Achievements from "./achievements"
@@ -24,6 +25,7 @@ type GameView =
   | "keycatcher"
   | "spelling"
   | "threat"
+  | "dataflow"
   | "leaderboard"
   | "achievements"
 
@@ -80,6 +82,10 @@ export default function GamesHub({ onBack }: GamesHubProps) {
 
   if (currentGame === "threat") {
     return <ThreatDetector onBack={handleBackToMenu} />
+  }
+
+  if (currentGame === "dataflow") {
+    return <DataFlow onBack={handleBackToMenu} />
   }
 
   if (currentGame === "leaderboard") {
@@ -299,6 +305,28 @@ export default function GamesHub({ onBack }: GamesHubProps) {
               </div>
               <div className="flex justify-center gap-2">
                 <span className="px-2 py-1 text-xs bg-red-400/20 text-red-300 rounded-full">Visual</span>
+              </div>
+            </div>
+          </button>
+
+          {/* Data Flow */}
+          <button
+            onClick={() => setCurrentGame("dataflow")}
+            className="group relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border-2 border-white/20 hover:border-emerald-400/60 rounded-3xl p-6 shadow-2xl hover:shadow-emerald-400/20 transition-all hover:scale-105 hover:-translate-y-2 duration-300"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/0 to-emerald-400/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative space-y-4">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-400 rounded-2xl flex items-center justify-center text-4xl shadow-lg">
+                🌊
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white mb-2">Encrypted Data Flow</h3>
+                <p className="text-white/70 text-sm leading-relaxed">
+                  Route data through correct Arcium protocols in the proper sequence
+                </p>
+              </div>
+              <div className="flex justify-center gap-2">
+                <span className="px-2 py-1 text-xs bg-emerald-400/20 text-emerald-300 rounded-full">Sequence</span>
               </div>
             </div>
           </button>
