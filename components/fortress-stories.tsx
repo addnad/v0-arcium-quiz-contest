@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, BookOpen } from "lucide-react"
+import { ArrowLeft, BookOpen, X } from "lucide-react"
 import Image from "next/image"
 
 interface FortressStoriesProps {
@@ -85,6 +85,7 @@ Welcome to the Arcium Citadel. Your data is yours. Your life is yours. And in th
 
 export default function FortressStories({ onBack }: FortressStoriesProps) {
   const [selectedFortress, setSelectedFortress] = useState<string | null>(null)
+  const [mobilePreview, setMobilePreview] = useState<string | null>(null)
 
   const fortress = FORTRESSES.find((f) => f.id === selectedFortress)
 
@@ -186,7 +187,7 @@ export default function FortressStories({ onBack }: FortressStoriesProps) {
           {FORTRESSES.map((fortress) => (
             <div
               key={fortress.id}
-              className="group relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl transition-all hover:scale-105 hover:border-cyan-400/50 animate-float cursor-pointer"
+              className="group relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl transition-all md:hover:scale-105 md:hover:border-cyan-400/50 animate-float cursor-pointer"
               style={{
                 animationDelay: `${Math.random() * 2}s`,
               }}
@@ -198,29 +199,61 @@ export default function FortressStories({ onBack }: FortressStoriesProps) {
                   src={fortress.image || "/placeholder.svg"}
                   alt={fortress.name}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="object-cover transition-transform duration-500 md:group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
 
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center p-6 text-center">
+                <div className="hidden md:flex absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex-col items-center justify-center p-6 text-center">
                   <h4 className="text-2xl font-bold text-white mb-3">{fortress.subtitle}</h4>
                   <p className="text-white/90 text-sm leading-relaxed mb-4">{fortress.description}</p>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-400/20 border border-cyan-400 rounded-full text-cyan-300 text-sm font-semibold">
+                  <button
+                    onClick={() => setSelectedFortress(fortress.id)}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-400/20 border border-cyan-400 rounded-full text-cyan-300 text-sm font-semibold hover:bg-cyan-400/30 transition-colors"
+                  >
                     <BookOpen className="w-4 h-4" />
                     Click to read full story
-                  </div>
+                  </button>
                 </div>
+
+                {mobilePreview === fortress.id && (
+                  <div className="md:hidden absolute inset-0 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-300">
+                    <button
+                      onClick={() => setMobilePreview(null)}
+                      className="absolute top-4 right-4 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                    <h4 className="text-xl font-bold text-white mb-3">{fortress.subtitle}</h4>
+                    <p className="text-white/90 text-sm leading-relaxed mb-4">{fortress.description}</p>
+                    <button
+                      onClick={() => {
+                        setMobilePreview(null)
+                        setSelectedFortress(fortress.id)
+                      }}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-400/20 border border-cyan-400 rounded-full text-cyan-300 text-sm font-semibold"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      Read full story
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Title Bar */}
               <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 to-transparent">
-                <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">
+                <h3 className="text-xl font-bold text-white md:group-hover:text-cyan-300 transition-colors mb-2">
                   {fortress.name}
                 </h3>
+                <button
+                  onClick={() => setMobilePreview(mobilePreview === fortress.id ? null : fortress.id)}
+                  className="md:hidden inline-flex items-center gap-2 px-3 py-1.5 bg-cyan-400/20 border border-cyan-400 rounded-full text-cyan-300 text-xs font-semibold"
+                >
+                  Tap to preview
+                </button>
               </div>
 
               {/* Hover Glow Effect */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <div className="absolute inset-0 opacity-0 md:group-hover:opacity-100 transition-opacity pointer-events-none">
                 <div className="absolute inset-0 bg-gradient-to-t from-cyan-400/10 via-transparent to-transparent"></div>
               </div>
             </div>

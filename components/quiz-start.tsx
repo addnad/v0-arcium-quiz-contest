@@ -82,10 +82,10 @@ export default function QuizStart({ onStart, sectionsCount, onBack }: QuizStartP
         {/* Quiz Info */}
         <div className="mt-8 text-center space-y-3">
           <p className="text-base text-white/70">
-            {sectionsCount} Educational Sections • 20 Questions Total • 20 Seconds Per Question
+            {sectionsCount} Educational Sections • 30 Questions Total • 20 Seconds Per Question
           </p>
           <p className="text-sm text-white/50">
-            Topics: Umbra, Dark Pools, Architecture, PETs, and Real-World Applications
+            Topics: What is Arcium, Umbra, Dark Pools, Architecture, PETs, and Real-World Applications
           </p>
         </div>
       </div>

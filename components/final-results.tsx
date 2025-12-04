@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { RotateCcw, ExternalLink } from "lucide-react"
+import { RotateCcw, ExternalLink, Share } from "lucide-react"
 import type { QuizSection } from "@/lib/quiz-data"
 
 interface CompletedSection {
@@ -39,6 +39,12 @@ export default function FinalResults({ sections, completedSections, onRetakeQuiz
   } else {
     performanceMessage = "Keep Learning!"
     performanceColor = "text-orange-400"
+  }
+
+  const handleShareToTwitter = () => {
+    const tweetText = `Just crushed the Arcium Knowledge Quiz! 🔐🚀\n\nScored ${totalScore}/${totalQuestions} (${percentage}%) on confidential computing, MPC, and encrypted applications.\n\nReady to test your crypto knowledge? Learn about the encrypted future with @1st_bernice\n\n#Arcium #ConfidentialComputing #Web3`
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
+    window.open(twitterUrl, "_blank", "noopener,noreferrer")
   }
 
   return (
@@ -86,6 +92,16 @@ export default function FinalResults({ sections, completedSections, onRetakeQuiz
               )
             })}
           </div>
+
+          {/* Twitter Share Button */}
+          <Button
+            onClick={handleShareToTwitter}
+            size="lg"
+            className="w-full bg-gradient-to-r from-blue-500 via-blue-600 to-cyan-500 hover:opacity-90 text-white px-8 py-6 text-lg rounded-lg font-bold inline-flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95 mb-4"
+          >
+            <Share className="w-6 h-6" />
+            Share Score on Twitter
+          </Button>
 
           {/* Retake Button */}
           <Button

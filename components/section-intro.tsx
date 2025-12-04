@@ -1,18 +1,27 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, ArrowLeft } from "lucide-react"
 import type { QuizSection } from "@/lib/quiz-data"
 
 interface SectionIntroProps {
   section: QuizSection
   onStart: () => void
+  onBack: () => void
 }
 
-export default function SectionIntro({ section, onStart }: SectionIntroProps) {
+export default function SectionIntro({ section, onStart, onBack }: SectionIntroProps) {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-4xl">
+        <button
+          onClick={onBack}
+          className="mb-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to Quiz Start
+        </button>
+
         {/* Section Card */}
         <div className={`bg-gradient-to-br ${section.color} rounded-2xl p-1 mb-8`}>
           <div className="bg-slate-950 rounded-2xl p-8 md:p-12">
