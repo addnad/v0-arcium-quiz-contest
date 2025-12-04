@@ -226,7 +226,7 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
         <div
           id="game-area"
           className="relative bg-white/10 backdrop-blur-xl rounded-3xl border-2 border-white/20 overflow-hidden touch-none"
-          style={{ height: isMobile ? "400px" : "600px" }}
+          style={{ height: isMobile ? "500px" : "600px" }}
         >
           {items.map((item) => (
             <div
@@ -252,18 +252,18 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
         </div>
 
         {isMobile ? (
-          <div className="flex gap-4 justify-center mt-6">
+          <div className="flex gap-4 justify-center mt-4">
             <Button
               onTouchStart={moveLeft}
               onClick={moveLeft}
-              className="w-24 h-24 bg-white/20 hover:bg-white/30 active:bg-white/40 backdrop-blur-xl border-2 border-white/30 rounded-2xl text-4xl"
+              className="w-20 h-20 bg-white/20 hover:bg-white/30 active:bg-white/40 backdrop-blur-xl border-2 border-white/30 rounded-2xl text-3xl"
             >
               ←
             </Button>
             <Button
               onTouchStart={moveRight}
               onClick={moveRight}
-              className="w-24 h-24 bg-white/20 hover:bg-white/30 active:bg-white/40 backdrop-blur-xl border-2 border-white/30 rounded-2xl text-4xl"
+              className="w-20 h-20 bg-white/20 hover:bg-white/30 active:bg-white/40 backdrop-blur-xl border-2 border-white/30 rounded-2xl text-3xl"
             >
               →
             </Button>
