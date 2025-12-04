@@ -12,6 +12,7 @@ interface PrivacyPathProps {
 type Cell = "empty" | "path" | "node" | "obstacle" | "end"
 
 export default function PrivacyPath({ onBack }: PrivacyPathProps) {
+  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard" | null>(null)
   const [level, setLevel] = useState(1)
   const [score, setScore] = useState(0)
   const [moves, setMoves] = useState(0)
@@ -20,21 +21,22 @@ export default function PrivacyPath({ onBack }: PrivacyPathProps) {
   const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
-    initializeLevel(level)
-  }, [level])
+    if (difficulty) {
+      initializeLevel(level)
+    }
+  }, [level, difficulty])
 
   const initializeLevel = (lvl: number) => {
-    const size = 5
+    const size = difficulty === "easy" ? 5 : difficulty === "medium" ? 6 : 7
     const newGrid: Cell[][] = Array(size)
       .fill(null)
       .map(() => Array(size).fill("empty"))
 
-    // Set path
     newGrid[0][0] = "path"
     newGrid[size - 1][size - 1] = "end"
 
-    // Add some nodes and obstacles
-    for (let i = 0; i < lvl + 2; i++) {
+    const obstacleCount = difficulty === "easy" ? lvl + 2 : difficulty === "medium" ? lvl + 4 : lvl + 6
+    for (let i = 0; i < obstacleCount; i++) {
       const x = Math.floor(Math.random() * size)
       const y = Math.floor(Math.random() * size)
       if ((x !== 0 || y !== 0) && (x !== size - 1 || y !== size - 1)) {
@@ -78,11 +80,51 @@ export default function PrivacyPath({ onBack }: PrivacyPathProps) {
   }
 
   const handleRestart = () => {
+    setDifficulty(null)
     setLevel(1)
     setScore(0)
     setMoves(0)
     setGameOver(false)
-    initializeLevel(1)
+  }
+
+  if (!difficulty) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{ background: "linear-gradient(135deg, #6c44fc 0%, #4a2e8f 50%, #2a1a5f 100%)" }}
+      >
+        <div className="max-w-md w-full bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-3xl p-8">
+          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-400 to-purple-400 rounded-2xl flex items-center justify-center text-5xl">
+            🗺️
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-4 text-center">Privacy Path</h1>
+          <p className="text-white/70 mb-8 text-center">Select your difficulty level</p>
+          <div className="space-y-3">
+            <Button
+              onClick={() => setDifficulty("easy")}
+              className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white py-6 text-lg"
+            >
+              Easy (5x5 Grid)
+            </Button>
+            <Button
+              onClick={() => setDifficulty("medium")}
+              className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white py-6 text-lg"
+            >
+              Medium (6x6 Grid)
+            </Button>
+            <Button
+              onClick={() => setDifficulty("hard")}
+              className="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white py-6 text-lg"
+            >
+              Hard (7x7 Grid)
+            </Button>
+          </div>
+          <Button onClick={onBack} variant="outline" className="w-full mt-4 bg-transparent">
+            Back to Games
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   if (gameOver) {
@@ -97,6 +139,7 @@ export default function PrivacyPath({ onBack }: PrivacyPathProps) {
           </div>
           <h2 className="text-4xl font-bold text-white mb-4">Path Complete!</h2>
           <div className="text-6xl font-bold text-blue-300 mb-6">{score}</div>
+          <p className="text-white/70 mb-2">Difficulty: {difficulty.toUpperCase()}</p>
           <p className="text-white/70 mb-8">You secured the data path!</p>
           <div className="flex gap-4">
             <Button onClick={handleRestart} className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white py-6">

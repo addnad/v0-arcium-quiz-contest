@@ -119,6 +119,28 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
     return () => window.removeEventListener("keydown", handleKeyPress)
   }, [gameActive])
 
+  useEffect(() => {
+    if (!gameActive) return
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0]
+        const gameArea = document.getElementById("game-area")
+        if (gameArea) {
+          const rect = gameArea.getBoundingClientRect()
+          const relativeX = ((touch.clientX - rect.left) / rect.width) * 100
+          setPlayerX(Math.max(0, Math.min(90, relativeX - 8)))
+        }
+      }
+    }
+
+    const gameArea = document.getElementById("game-area")
+    if (gameArea) {
+      gameArea.addEventListener("touchmove", handleTouchMove)
+      return () => gameArea.removeEventListener("touchmove", handleTouchMove)
+    }
+  }, [gameActive])
+
   const startGame = () => {
     setScore(0)
     setPlayerX(50)
@@ -206,7 +228,8 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
         </div>
 
         <div
-          className="relative bg-white/10 backdrop-blur-xl rounded-3xl border-2 border-white/20 overflow-hidden"
+          id="game-area"
+          className="relative bg-white/10 backdrop-blur-xl rounded-3xl border-2 border-white/20 overflow-hidden touch-none"
           style={{ height: "600px" }}
         >
           {items.map((item) => (
@@ -230,7 +253,7 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
           </div>
         </div>
 
-        <p className="text-center text-white/70 mt-4">Use ← → arrow keys to move</p>
+        <p className="text-center text-white/70 mt-4">Use ← → arrow keys or touch/drag to move</p>
       </div>
     </div>
   )

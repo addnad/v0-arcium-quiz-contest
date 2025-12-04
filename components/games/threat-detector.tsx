@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ArrowLeft, CheckCircle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { addScore } from "@/lib/game-storage"
@@ -49,8 +49,17 @@ export default function ThreatDetector({ onBack }: ThreatDetectorProps) {
   const [showResult, setShowResult] = useState(false)
   const [selectedCode, setSelectedCode] = useState<"secure" | "insecure" | null>(null)
   const [completed, setCompleted] = useState(false)
+  const [shuffledOptions, setShuffledOptions] = useState<Array<{ code: string; type: "secure" | "insecure" }>>([])
 
   const currentScenario = scenarios[currentIndex]
+
+  useEffect(() => {
+    const options = [
+      { code: currentScenario.secure, type: "secure" as const },
+      { code: currentScenario.insecure, type: "insecure" as const },
+    ]
+    setShuffledOptions(options.sort(() => Math.random() - 0.5))
+  }, [currentIndex])
 
   const handleSelection = (choice: "secure" | "insecure") => {
     setSelectedCode(choice)
@@ -131,35 +140,27 @@ export default function ThreatDetector({ onBack }: ThreatDetectorProps) {
           <p className="text-center text-white/70 text-lg mb-6">Which code has the security vulnerability?</p>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <button
-              onClick={() => !showResult && handleSelection("secure")}
-              disabled={showResult}
-              className={`bg-white/10 backdrop-blur-xl rounded-2xl p-6 border-2 transition-all ${
-                showResult
-                  ? selectedCode === "secure"
-                    ? "border-red-500/60"
-                    : "border-green-500/60"
-                  : "border-white/20 hover:border-white/40"
-              }`}
-            >
-              <div className="text-white/70 text-sm mb-3">Code Sample A</div>
-              <code className="text-white text-sm font-mono block whitespace-pre-wrap">{currentScenario.secure}</code>
-            </button>
-
-            <button
-              onClick={() => !showResult && handleSelection("insecure")}
-              disabled={showResult}
-              className={`bg-white/10 backdrop-blur-xl rounded-2xl p-6 border-2 transition-all ${
-                showResult
-                  ? selectedCode === "insecure"
-                    ? "border-green-500/60"
-                    : "border-red-500/60"
-                  : "border-white/20 hover:border-white/40"
-              }`}
-            >
-              <div className="text-white/70 text-sm mb-3">Code Sample B</div>
-              <code className="text-white text-sm font-mono block whitespace-pre-wrap">{currentScenario.insecure}</code>
-            </button>
+            {shuffledOptions.map((option, index) => (
+              <button
+                key={index}
+                onClick={() => !showResult && handleSelection(option.type)}
+                disabled={showResult}
+                className={`bg-white/10 backdrop-blur-xl rounded-2xl p-6 border-2 transition-all ${
+                  showResult
+                    ? selectedCode === option.type
+                      ? option.type === "insecure"
+                        ? "border-green-500/60"
+                        : "border-red-500/60"
+                      : option.type === "insecure"
+                        ? "border-red-500/60"
+                        : "border-green-500/60"
+                    : "border-white/20 hover:border-white/40"
+                }`}
+              >
+                <div className="text-white/70 text-sm mb-3">Code Sample {index === 0 ? "A" : "B"}</div>
+                <code className="text-white text-sm font-mono block whitespace-pre-wrap">{option.code}</code>
+              </button>
+            ))}
           </div>
         </div>
 
