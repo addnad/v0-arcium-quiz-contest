@@ -8,6 +8,7 @@ import SectionResults from "@/components/section-results"
 import FinalResults from "@/components/final-results"
 import DailyCheckin from "@/components/daily-checkin"
 import FortressStories from "@/components/fortress-stories"
+import GamesHub from "@/components/games-hub" // Imported GamesHub component
 import { getQuestionsBySection, randomizeQuestionOptions, QUIZ_SECTIONS, type Question } from "@/lib/quiz-data"
 import Image from "next/image"
 
@@ -16,13 +17,14 @@ type AppState =
   | "featureChooser"
   | "gmpcDaily"
   | "fortressStories"
+  | "games"
   | "quizStart"
   | "sectionIntro"
   | "quiz"
   | "sectionResults"
   | "finalResults"
 
-interface CompletedSection {
+type CompletedSection = {
   sectionId: string
   score: number
   answers: (number | null)[]
@@ -54,6 +56,10 @@ export default function Home() {
 
   const handleFortressStories = useCallback(() => {
     setAppState("fortressStories")
+  }, [])
+
+  const handleGames = useCallback(() => {
+    setAppState("games")
   }, [])
 
   const handleKnowledgeQuiz = useCallback(() => {
@@ -243,7 +249,7 @@ export default function Home() {
                       title="Discord: 1stbernice"
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.076.076 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.077.077 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z" />
+                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.076.076 0 0 0 .084.028a14.09 14.09 0 0 0 1.226-1.994a.077.077 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z" />
                       </svg>
                       <span className="text-sm font-medium">1stbernice</span>
                     </a>
@@ -265,25 +271,25 @@ export default function Home() {
             </div>
 
             {/* Enhanced feature cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
               {/* GMPC Daily */}
               <button
                 onClick={handleGMPCDaily}
-                className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-cyan-400/50 rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
+                className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-cyan-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/0 to-cyan-400/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative text-center space-y-6">
-                  <div className="w-20 h-20 mx-auto bg-gradient-to-br from-cyan-400 via-blue-400 to-purple-400 rounded-2xl flex items-center justify-center text-4xl shadow-lg group-hover:shadow-cyan-400/50 transition-shadow">
+                <div className="relative text-center space-y-4 lg:space-y-6">
+                  <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto bg-gradient-to-br from-cyan-400 via-blue-400 to-purple-400 rounded-2xl flex items-center justify-center text-3xl lg:text-4xl shadow-lg group-hover:shadow-cyan-400/50 transition-shadow">
                     📅
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white mb-2">GMPC Daily</h3>
-                    <p className="text-white/60 text-sm leading-relaxed">
+                    <h3 className="text-xl lg:text-2xl font-bold text-white mb-2">GMPC Daily</h3>
+                    <p className="text-white/60 text-xs lg:text-sm leading-relaxed">
                       Build your learning habit with daily check-ins and track your progress throughout the week
                     </p>
                   </div>
-                  <div className="pt-4">
-                    <span className="inline-flex items-center gap-2 text-cyan-300 font-semibold group-hover:gap-3 transition-all">
+                  <div className="pt-2 lg:pt-4">
+                    <span className="inline-flex items-center gap-2 text-cyan-300 font-semibold text-sm group-hover:gap-3 transition-all">
                       GMPC check in here
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -296,22 +302,48 @@ export default function Home() {
               {/* Knowledge Quiz */}
               <button
                 onClick={handleKnowledgeQuiz}
-                className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-purple-400/50 rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
+                className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-purple-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-400/0 to-purple-400/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative text-center space-y-6">
-                  <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 rounded-2xl flex items-center justify-center text-4xl shadow-lg group-hover:shadow-purple-400/50 transition-shadow">
+                <div className="relative text-center space-y-4 lg:space-y-6">
+                  <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 rounded-2xl flex items-center justify-center text-3xl lg:text-4xl shadow-lg group-hover:shadow-purple-400/50 transition-shadow">
                     🧠
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white mb-2">Knowledge Quiz</h3>
-                    <p className="text-white/60 text-sm leading-relaxed">
+                    <h3 className="text-xl lg:text-2xl font-bold text-white mb-2">Knowledge Quiz</h3>
+                    <p className="text-white/60 text-xs lg:text-sm leading-relaxed">
                       Test your understanding across 5 sections covering Arcium's confidential computing ecosystem
                     </p>
                   </div>
-                  <div className="pt-4">
-                    <span className="inline-flex items-center gap-2 text-purple-300 font-semibold group-hover:gap-3 transition-all">
+                  <div className="pt-2 lg:pt-4">
+                    <span className="inline-flex items-center gap-2 text-purple-300 font-semibold text-sm group-hover:gap-3 transition-all">
                       Begin Quiz
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={handleGames}
+                className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-green-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-green-400/0 to-green-400/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative text-center space-y-4 lg:space-y-6">
+                  <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto bg-gradient-to-br from-green-400 via-teal-400 to-cyan-400 rounded-2xl flex items-center justify-center text-3xl lg:text-4xl shadow-lg group-hover:shadow-green-400/50 transition-shadow">
+                    🎮
+                  </div>
+                  <div>
+                    <h3 className="text-xl lg:text-2xl font-bold text-white mb-2">Privacy Games</h3>
+                    <p className="text-white/60 text-xs lg:text-sm leading-relaxed">
+                      Learn encryption through fun mini-games and challenges
+                    </p>
+                  </div>
+                  <div className="pt-2 lg:pt-4">
+                    <span className="inline-flex items-center gap-2 text-green-300 font-semibold text-sm group-hover:gap-3 transition-all">
+                      Play Games
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
@@ -323,21 +355,21 @@ export default function Home() {
               {/* Fortress Stories */}
               <button
                 onClick={handleFortressStories}
-                className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-orange-400/50 rounded-3xl p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
+                className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-orange-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-400/0 to-orange-400/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative text-center space-y-6">
-                  <div className="w-20 h-20 mx-auto bg-gradient-to-br from-orange-400 via-red-400 to-pink-400 rounded-2xl flex items-center justify-center text-4xl shadow-lg group-hover:shadow-orange-400/50 transition-shadow">
+                <div className="relative text-center space-y-4 lg:space-y-6">
+                  <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto bg-gradient-to-br from-orange-400 via-red-400 to-pink-400 rounded-2xl flex items-center justify-center text-3xl lg:text-4xl shadow-lg group-hover:shadow-orange-400/50 transition-shadow">
                     🏰
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold text-white mb-2">Fortress Stories</h3>
-                    <p className="text-white/60 text-sm leading-relaxed">
+                    <h3 className="text-xl lg:text-2xl font-bold text-white mb-2">Fortress Stories</h3>
+                    <p className="text-white/60 text-xs lg:text-sm leading-relaxed">
                       Discover the five legendary fortresses safeguarding your encrypted digital life
                     </p>
                   </div>
-                  <div className="pt-4">
-                    <span className="inline-flex items-center gap-2 text-orange-300 font-semibold group-hover:gap-3 transition-all">
+                  <div className="pt-2 lg:pt-4">
+                    <span className="inline-flex items-center gap-2 text-orange-300 font-semibold text-sm group-hover:gap-3 transition-all">
                       Explore Stories
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -350,6 +382,8 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {appState === "games" && <GamesHub onBack={handleBackToFeatures} />}
 
       {appState === "gmpcDaily" && <DailyCheckin onBack={handleBackToFeatures} />}
 
