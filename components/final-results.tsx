@@ -18,10 +18,7 @@ interface FinalResultsProps {
 
 export default function FinalResults({ sections, completedSections, onRetakeQuiz }: FinalResultsProps) {
   const totalScore = completedSections.reduce((sum, s) => sum + s.score, 0)
-  const totalQuestions = completedSections.reduce((sum, s) => {
-    const section = sections.find((sec) => sec.id === s.sectionId)
-    return sum + (section?.questionCount || 0)
-  }, 0)
+  const totalQuestions = completedSections.reduce((sum, s) => sum + s.answers.length, 0)
   const percentage = Math.round((totalScore / totalQuestions) * 100)
 
   let performanceMessage = "Great Job!"
@@ -70,7 +67,8 @@ export default function FinalResults({ sections, completedSections, onRetakeQuiz
             {completedSections.map((completed) => {
               const section = sections.find((s) => s.id === completed.sectionId)
               if (!section) return null
-              const sectionPercentage = Math.round((completed.score / section.questionCount) * 100)
+              const questionsAttempted = completed.answers.length
+              const sectionPercentage = Math.round((completed.score / questionsAttempted) * 100)
               return (
                 <div key={section.id} className="flex items-center justify-between bg-slate-900/50 rounded-lg p-4">
                   <div className="flex items-center gap-3">
@@ -85,7 +83,7 @@ export default function FinalResults({ sections, completedSections, onRetakeQuiz
                       />
                     </div>
                     <span className="text-white font-bold w-12 text-right">
-                      {completed.score}/{section.questionCount}
+                      {completed.score}/{questionsAttempted}
                     </span>
                   </div>
                 </div>

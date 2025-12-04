@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ChevronRight, RotateCcw, BookOpen } from "lucide-react"
+import { ChevronRight, RotateCcw, BookOpen, Share2 } from "lucide-react"
 
 interface QuizResultsProps {
   score: number
@@ -34,6 +34,20 @@ export default function QuizResults({
   } else if (score >= 4) {
     performanceMessage = "Fair! Keep Learning"
     performanceColor = "text-blue-400"
+  }
+
+  const handleShareTwitter = () => {
+    const tweetText = `I just scored ${score}/${totalQuestions} (${percentage}%) on the Arcium Knowledge Quiz! 🎯
+
+Test your knowledge about confidential computing, MPC, and encrypted supercomputers.
+
+Take the quiz: https://stayencrypted.vercel.app/`
+
+    console.log("[v0] Tweet text:", tweetText)
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
+    console.log("[v0] Full Twitter URL:", twitterUrl)
+
+    window.open(twitterUrl, "_blank", "noopener,noreferrer")
   }
 
   return (
@@ -102,6 +116,17 @@ export default function QuizResults({
           >
             <BookOpen className="w-5 h-5" />
             Learn About Arcium
+          </Button>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 mt-4">
+          <Button
+            onClick={handleShareTwitter}
+            size="lg"
+            className="flex-1 bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 border border-[#1DA1F2]/50 text-[#1DA1F2] px-6 py-6 text-base rounded-lg font-semibold inline-flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95"
+          >
+            <Share2 className="w-5 h-5" />
+            Share Result on X
           </Button>
           <Button
             onClick={onRetakeQuiz}
