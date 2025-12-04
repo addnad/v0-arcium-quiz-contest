@@ -54,27 +54,55 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
   }
 
   const handleDownload = async () => {
-    if (!cardRef.current) return
+    if (!cardRef.current || !profileImage) {
+      alert("Please upload a profile picture first")
+      return
+    }
 
     try {
+      // Wait a bit for any animations to settle
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
       const canvas = await html2canvas(cardRef.current, {
         scale: 2,
         backgroundColor: null,
-        logging: false,
+        logging: true,
+        useCORS: true,
+        allowTaint: true,
+        imageTimeout: 0,
+        onclone: (clonedDoc) => {
+          // Ensure all images are loaded in the cloned document
+          const clonedCard = clonedDoc.querySelector('[data-card="true"]')
+          if (clonedCard) {
+            ;(clonedCard as HTMLElement).style.transform = "none"
+          }
+        },
       })
 
-      const blob = await new Promise<Blob>((resolve) => {
-        canvas.toBlob((blob) => resolve(blob!), "image/png")
-      })
+      // Convert canvas to blob
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            alert("Failed to create image. Please try again.")
+            return
+          }
 
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = `arcium-card-${username}.png`
-      link.click()
-      URL.revokeObjectURL(url)
+          // Create download link
+          const url = URL.createObjectURL(blob)
+          const link = document.createElement("a")
+          link.download = `arcium-${username}-card.png`
+          link.href = url
+          link.click()
+
+          // Cleanup
+          setTimeout(() => URL.revokeObjectURL(url), 100)
+        },
+        "image/png",
+        1.0,
+      )
     } catch (error) {
-      console.error("[v0] Error generating card:", error)
+      console.error("Download error:", error)
+      alert("Failed to download card. Please try again.")
     }
   }
 
@@ -130,6 +158,7 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
                         src={profileImage || "/placeholder.svg"}
                         alt="Profile"
                         className="w-full h-full object-cover"
+                        crossOrigin="anonymous"
                       />
                     </div>
                   </div>
@@ -173,195 +202,161 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
                 </button>
               </div>
             </Card>
+          </div>
+
+          {/* Right side - Preview */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-center">
+              <div className="w-full max-w-md">
+                {/* Gradient Template */}
+                {selectedTemplate === "gradient" && (
+                  <div
+                    ref={cardRef}
+                    data-card="true"
+                    className="aspect-square bg-gradient-to-br from-cyan-500 via-purple-500 to-pink-500 rounded-3xl p-8 relative overflow-hidden"
+                  >
+                    {/* Pattern Overlay */}
+                    <div className="absolute inset-0 opacity-10">
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)",
+                          backgroundSize: "20px 20px",
+                        }}
+                      />
+                    </div>
+
+                    <div className="relative h-full flex flex-col">
+                      {/* Profile Section */}
+                      <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                        <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white/20">
+                          {profileImage ? (
+                            <img
+                              src={profileImage || "/placeholder.svg"}
+                              alt="Profile"
+                              className="w-full h-full object-cover"
+                              crossOrigin="anonymous"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-white text-4xl">👤</div>
+                          )}
+                        </div>
+                        <div className="text-center">
+                          <h2 className="text-3xl font-bold text-white mb-1">{username || "Your Name"}</h2>
+                          <p className="text-white/80 text-sm">Privacy Pioneer</p>
+                        </div>
+                      </div>
+
+                      {/* Stats Section */}
+                      <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div>
+                            <div className="text-2xl font-bold text-white">#{rank || "--"}</div>
+                            <div className="text-white/70 text-xs">Rank</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-white">{totalScore.toLocaleString()}</div>
+                            <div className="text-white/70 text-xs">Score</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-white">{gamesPlayed}</div>
+                            <div className="text-white/70 text-xs">Games</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Branding */}
+                      <div className="mt-6 flex items-center justify-center gap-2">
+                        <img src="/images/arcium-logo.png" alt="Arcium" className="w-6 h-6" crossOrigin="anonymous" />
+                        <span className="text-white font-semibold">Arcium Quiz Contest</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Minimal Template */}
+                {selectedTemplate === "minimal" && (
+                  <div
+                    ref={cardRef}
+                    data-card="true"
+                    className="aspect-square bg-white rounded-3xl p-8 relative overflow-hidden"
+                  ></div>
+                )}
+
+                {/* Bold Template */}
+                {selectedTemplate === "bold" && (
+                  <div
+                    ref={cardRef}
+                    data-card="true"
+                    className="aspect-square bg-gray-900 rounded-3xl p-8 relative overflow-hidden"
+                  >
+                    {/* Electric effect */}
+                    <div className="absolute inset-0 opacity-20">
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse" />
+                      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent animate-pulse" />
+                    </div>
+
+                    <div className="relative h-full flex flex-col">
+                      {/* Profile Section */}
+                      <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                        <div className="w-32 h-32 rounded-full border-4 border-cyan-400 overflow-hidden bg-cyan-400/20">
+                          {profileImage ? (
+                            <img
+                              src={profileImage || "/placeholder.svg"}
+                              alt="Profile"
+                              className="w-full h-full object-cover"
+                              crossOrigin="anonymous"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-cyan-400 text-4xl">
+                              👤
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-center">
+                          <h2 className="text-3xl font-bold text-white mb-1">{username || "Your Name"}</h2>
+                          <p className="text-cyan-400 text-sm font-semibold">Privacy Pioneer</p>
+                        </div>
+                      </div>
+
+                      {/* Stats Section */}
+                      <div className="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-2xl p-6 border-2 border-cyan-400/50">
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div>
+                            <div className="text-2xl font-bold text-cyan-400">#{rank || "--"}</div>
+                            <div className="text-white/70 text-xs">Rank</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-cyan-400">{totalScore.toLocaleString()}</div>
+                            <div className="text-white/70 text-xs">Score</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-cyan-400">{gamesPlayed}</div>
+                            <div className="text-white/70 text-xs">Games</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Branding */}
+                      <div className="mt-6 flex items-center justify-center gap-2">
+                        <img src="/images/arcium-logo.png" alt="Arcium" className="w-6 h-6" />
+                        <span className="text-white font-semibold">Arcium Quiz Contest</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Download Button */}
             <Button
               onClick={handleDownload}
               disabled={!profileImage}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download className="w-4 h-4 mr-2" />
               Download Card
             </Button>
-          </div>
-
-          {/* Right side - Preview */}
-          <div className="flex items-center justify-center">
-            <div className="w-full max-w-md">
-              {/* Gradient Template */}
-              {selectedTemplate === "gradient" && (
-                <div
-                  ref={cardRef}
-                  className="aspect-square bg-gradient-to-br from-cyan-500 via-purple-500 to-pink-500 rounded-3xl p-8 relative overflow-hidden"
-                >
-                  {/* Pattern Overlay */}
-                  <div className="absolute inset-0 opacity-10">
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)",
-                        backgroundSize: "20px 20px",
-                      }}
-                    />
-                  </div>
-
-                  <div className="relative h-full flex flex-col">
-                    {/* Profile Section */}
-                    <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                      <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white/20">
-                        {profileImage ? (
-                          <img
-                            src={profileImage || "/placeholder.svg"}
-                            alt="Profile"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-white text-4xl">👤</div>
-                        )}
-                      </div>
-                      <div className="text-center">
-                        <h2 className="text-3xl font-bold text-white mb-1">{username || "Your Name"}</h2>
-                        <p className="text-white/80 text-sm">Privacy Pioneer</p>
-                      </div>
-                    </div>
-
-                    {/* Stats Section */}
-                    <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-                      <div className="grid grid-cols-3 gap-4 text-center">
-                        <div>
-                          <div className="text-2xl font-bold text-white">#{rank || "--"}</div>
-                          <div className="text-white/70 text-xs">Rank</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-white">{totalScore.toLocaleString()}</div>
-                          <div className="text-white/70 text-xs">Score</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-white">{gamesPlayed}</div>
-                          <div className="text-white/70 text-xs">Games</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Branding */}
-                    <div className="mt-6 flex items-center justify-center gap-2">
-                      <img src="/images/arcium-logo.png" alt="Arcium" className="w-6 h-6" />
-                      <span className="text-white font-semibold">Arcium Quiz Contest</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Minimal Template */}
-              {selectedTemplate === "minimal" && (
-                <div ref={cardRef} className="aspect-square bg-white rounded-3xl p-8 relative overflow-hidden">
-                  <div className="h-full flex flex-col">
-                    {/* Profile Section */}
-                    <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                      <div className="w-32 h-32 rounded-full border-4 border-gray-200 overflow-hidden bg-gray-100">
-                        {profileImage ? (
-                          <img
-                            src={profileImage || "/placeholder.svg"}
-                            alt="Profile"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400 text-4xl">
-                            👤
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-center">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-1">{username || "Your Name"}</h2>
-                        <p className="text-gray-600 text-sm">Privacy Pioneer</p>
-                      </div>
-                    </div>
-
-                    {/* Stats Section */}
-                    <div className="bg-gray-50 rounded-2xl p-6 border-2 border-gray-200">
-                      <div className="grid grid-cols-3 gap-4 text-center">
-                        <div>
-                          <div className="text-2xl font-bold text-gray-900">#{rank || "--"}</div>
-                          <div className="text-gray-600 text-xs">Rank</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-gray-900">{totalScore.toLocaleString()}</div>
-                          <div className="text-gray-600 text-xs">Score</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-gray-900">{gamesPlayed}</div>
-                          <div className="text-gray-600 text-xs">Games</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Branding */}
-                    <div className="mt-6 flex items-center justify-center gap-2">
-                      <img src="/images/arcium-logo.png" alt="Arcium" className="w-6 h-6" />
-                      <span className="text-gray-900 font-semibold">Arcium Quiz Contest</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Bold Template */}
-              {selectedTemplate === "bold" && (
-                <div ref={cardRef} className="aspect-square bg-gray-900 rounded-3xl p-8 relative overflow-hidden">
-                  {/* Electric effect */}
-                  <div className="absolute inset-0 opacity-20">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse" />
-                    <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent animate-pulse" />
-                  </div>
-
-                  <div className="relative h-full flex flex-col">
-                    {/* Profile Section */}
-                    <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                      <div className="w-32 h-32 rounded-full border-4 border-cyan-400 overflow-hidden bg-cyan-400/20">
-                        {profileImage ? (
-                          <img
-                            src={profileImage || "/placeholder.svg"}
-                            alt="Profile"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-cyan-400 text-4xl">
-                            👤
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-center">
-                        <h2 className="text-3xl font-bold text-white mb-1">{username || "Your Name"}</h2>
-                        <p className="text-cyan-400 text-sm font-semibold">Privacy Pioneer</p>
-                      </div>
-                    </div>
-
-                    {/* Stats Section */}
-                    <div className="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-2xl p-6 border-2 border-cyan-400/50">
-                      <div className="grid grid-cols-3 gap-4 text-center">
-                        <div>
-                          <div className="text-2xl font-bold text-cyan-400">#{rank || "--"}</div>
-                          <div className="text-white/70 text-xs">Rank</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-cyan-400">{totalScore.toLocaleString()}</div>
-                          <div className="text-white/70 text-xs">Score</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-cyan-400">{gamesPlayed}</div>
-                          <div className="text-white/70 text-xs">Games</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Branding */}
-                    <div className="mt-6 flex items-center justify-center gap-2">
-                      <img src="/images/arcium-logo.png" alt="Arcium" className="w-6 h-6" />
-                      <span className="text-white font-semibold">Arcium Quiz Contest</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ import GamesHub from "@/components/games-hub" // Imported GamesHub component
 import SocialCardGenerator from "@/components/social-card-generator"
 import { getQuestionsBySection, randomizeQuestionOptions, QUIZ_SECTIONS, type Question } from "@/lib/quiz-data"
 import Image from "next/image"
-import { Sparkles } from "react-feather"
+import { Sparkles } from "lucide-react"
 
 type AppState =
   | "video"

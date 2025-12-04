@@ -144,7 +144,7 @@ importers:
         specifier: 19.2.0
         version: 19.2.0(react@19.2.0)
       react-feather:
-        specifier: latest
+        specifier: 2.0.10
         version: 2.0.10(react@19.2.0)
       react-hook-form:
         specifier: ^7.60.0
