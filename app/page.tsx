@@ -9,8 +9,10 @@ import FinalResults from "@/components/final-results"
 import DailyCheckin from "@/components/daily-checkin"
 import FortressStories from "@/components/fortress-stories"
 import GamesHub from "@/components/games-hub" // Imported GamesHub component
+import SocialCardGenerator from "@/components/social-card-generator"
 import { getQuestionsBySection, randomizeQuestionOptions, QUIZ_SECTIONS, type Question } from "@/lib/quiz-data"
 import Image from "next/image"
+import { Sparkles } from "react-feather"
 
 type AppState =
   | "video"
@@ -23,6 +25,7 @@ type AppState =
   | "quiz"
   | "sectionResults"
   | "finalResults"
+  | "socialCard"
 
 type CompletedSection = {
   sectionId: string
@@ -39,6 +42,7 @@ export default function Home() {
   const [sectionAnswers, setSectionAnswers] = useState<(number | null)[]>([])
   const [sectionScore, setSectionScore] = useState(0)
   const [completedSections, setCompletedSections] = useState<CompletedSection[]>([])
+  const [showSocialCard, setShowSocialCard] = useState(false)
 
   const currentSection = QUIZ_SECTIONS[currentSectionIndex]
 
@@ -149,8 +153,16 @@ export default function Home() {
     setAppState("quizStart")
   }, [])
 
+  const handleSocialCard = useCallback(() => {
+    setAppState("socialCard")
+  }, [])
+
+  if (appState === "socialCard") {
+    return <SocialCardGenerator onBack={() => setAppState("featureChooser")} />
+  }
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-blue-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative overflow-hidden">
       {/* Background overlay for quiz states */}
       {(appState === "quiz" ||
         appState === "sectionResults" ||
@@ -271,7 +283,7 @@ export default function Home() {
             </div>
 
             {/* Enhanced feature cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8">
               {/* GMPC Daily */}
               <button
                 onClick={handleGMPCDaily}
@@ -378,6 +390,33 @@ export default function Home() {
                   </div>
                 </div>
               </button>
+
+              {/* Social Card Generator */}
+              <button
+                onClick={handleSocialCard}
+                className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-pink-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-400/0 to-pink-400/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative text-center space-y-4 lg:space-y-6">
+                  <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto bg-gradient-to-br from-pink-400 via-purple-400 to-cyan-400 rounded-2xl flex items-center justify-center text-3xl lg:text-4xl shadow-lg group-hover:shadow-pink-400/50 transition-shadow">
+                    <Sparkles className="w-10 h-10 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl lg:text-2xl font-bold text-white mb-2">Social Card</h3>
+                    <p className="text-white/60 text-xs lg:text-sm leading-relaxed">
+                      Create and share your achievements with custom profile cards
+                    </p>
+                  </div>
+                  <div className="pt-2 lg:pt-4">
+                    <span className="inline-flex items-center gap-2 text-pink-300 font-semibold text-sm group-hover:gap-3 transition-all">
+                      Create Card
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </button>
             </div>
           </div>
         </div>
@@ -422,6 +461,6 @@ export default function Home() {
       {appState === "finalResults" && (
         <FinalResults sections={QUIZ_SECTIONS} completedSections={completedSections} onRetakeQuiz={handleRetakeQuiz} />
       )}
-    </main>
+    </div>
   )
 }
