@@ -386,8 +386,11 @@ export default function SocialCardGenerator({ onBack }: SocialCardGeneratorProps
           <h1 className="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             Share Your Privacy Journey
           </h1>
-          <p className="text-white/60 text-lg">
+          <p className="text-white/60 text-lg mb-2">
             Create a shareable card showcasing your achievements on the Arcium platform
+          </p>
+          <p className="text-cyan-300 text-sm font-medium">
+            💡 Try out privacy games to get stats for your social card!
           </p>
         </div>
 

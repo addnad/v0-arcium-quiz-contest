@@ -1,38 +1,85 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
-import { Check, ArrowLeft, Calendar, Trophy } from "lucide-react"
-import Image from "next/image"
+import { Check, ArrowLeft } from "lucide-react"
 import LogoScatter from "@/components/logo-scatter"
+import { createBrowserClient } from "@/lib/supabase/client"
 
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
 interface DailyCheckinProps {
   onBack: () => void
+  username?: string
 }
 
-export default function DailyCheckin({ onBack }: DailyCheckinProps) {
+export default function DailyCheckin({ onBack, username: propUsername }: DailyCheckinProps) {
   const [checkedDays, setCheckedDays] = useState<boolean[]>(new Array(7).fill(false))
   const [currentDayIndex, setCurrentDayIndex] = useState(0)
+  const [hasCheckedToday, setHasCheckedToday] = useState(false)
   const [showAnimation, setShowAnimation] = useState(false)
   const [animationPosition, setAnimationPosition] = useState({ x: 0, y: 0 })
-  const [flippingDay, setFlippingDay] = useState<number | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [username, setUsername] = useState<string | null>(null)
 
   useEffect(() => {
-    localStorage.removeItem("gmpc-checkins")
-    localStorage.removeItem("gmpc-last-check-date")
+    const user = propUsername || localStorage.getItem("arcium-username")
+    setUsername(user)
+    console.log("[v0] Username for check-in:", user)
 
-    const today = new Date().getDay()
-    const dayIndex = today === 0 ? 6 : today - 1
-    setCurrentDayIndex(dayIndex)
+    const loadCheckinStatus = async () => {
+      const today = new Date().getDay()
+      const dayIndex = today === 0 ? 6 : today - 1
+      setCurrentDayIndex(dayIndex)
 
-    setCheckedDays(new Array(7).fill(false))
-  }, [])
+      if (!user) {
+        console.log("[v0] No username found, skipping database check")
+        setLoading(false)
+        return
+      }
 
-  const handleCheckIn = (dayIndex: number, event: React.MouseEvent<HTMLButtonElement>) => {
-    if (dayIndex !== currentDayIndex || checkedDays[dayIndex]) return
+      const supabase = createBrowserClient()
+
+      // Get current week's start (Monday)
+      const now = new Date()
+      const dayOfWeek = now.getDay()
+      const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+      const monday = new Date(now)
+      monday.setDate(now.getDate() + diff)
+      monday.setHours(0, 0, 0, 0)
+
+      const { data, error } = await supabase
+        .from("checkins")
+        .select("check_in_date")
+        .eq("username", user)
+        .gte("check_in_date", monday.toISOString().split("T")[0])
+
+      console.log("[v0] Checkins query result - data:", data, "error:", error)
+
+      if (!error && data) {
+        const newCheckedDays = new Array(7).fill(false)
+        data.forEach((checkin) => {
+          const checkinDate = new Date(checkin.check_in_date)
+          const checkinDay = checkinDate.getDay()
+          const checkinDayIndex = checkinDay === 0 ? 6 : checkinDay - 1
+          newCheckedDays[checkinDayIndex] = true
+        })
+        setCheckedDays(newCheckedDays)
+        setHasCheckedToday(newCheckedDays[dayIndex])
+        console.log("[v0] Loaded check-in status. Today checked:", newCheckedDays[dayIndex])
+      }
+
+      setLoading(false)
+    }
+
+    loadCheckinStatus()
+  }, [propUsername])
+
+  const handleCheckIn = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (hasCheckedToday || !username) {
+      console.log("[v0] Check-in blocked - hasCheckedToday:", hasCheckedToday, "username:", username)
+      return
+    }
 
     const rect = event.currentTarget.getBoundingClientRect()
     setAnimationPosition({
@@ -40,28 +87,53 @@ export default function DailyCheckin({ onBack }: DailyCheckinProps) {
       y: rect.top + rect.height / 2,
     })
 
-    setFlippingDay(dayIndex)
+    const supabase = createBrowserClient()
+    const today = new Date().toISOString().split("T")[0]
+
+    console.log("[v0] Attempting check-in insert for username:", username, "date:", today)
+
+    const { data, error } = await supabase
+      .from("checkins")
+      .insert({
+        username,
+        check_in_date: today,
+      })
+      .select()
+
+    if (error) {
+      console.error("[v0] Check-in insert error:", error)
+      return
+    }
+
+    console.log("[v0] Check-in saved successfully:", data)
 
     const newCheckedDays = [...checkedDays]
-    newCheckedDays[dayIndex] = true
+    newCheckedDays[currentDayIndex] = true
     setCheckedDays(newCheckedDays)
-
-    localStorage.setItem("gmpc-checkins", JSON.stringify(newCheckedDays))
-    localStorage.setItem("gmpc-last-check-date", new Date().toDateString())
+    setHasCheckedToday(true)
 
     setShowAnimation(true)
     setTimeout(() => {
       setShowAnimation(false)
-      setFlippingDay(null)
     }, 3000)
   }
 
-  const completedCount = checkedDays.filter(Boolean).length
-  const progressPercentage = (completedCount / DAYS.length) * 100
+  if (loading) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{
+          background: "linear-gradient(135deg, #6c44fc 0%, #4a2e8f 50%, #2a1a5f 100%)",
+        }}
+      >
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    )
+  }
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-8 md:py-12"
+      className="min-h-screen flex items-center justify-center px-4 py-8"
       style={{
         background: "linear-gradient(135deg, #6c44fc 0%, #4a2e8f 50%, #2a1a5f 100%)",
       }}
@@ -70,10 +142,10 @@ export default function DailyCheckin({ onBack }: DailyCheckinProps) {
         <LogoScatter isVisible={showAnimation} triggerX={animationPosition.x} triggerY={animationPosition.y} />
       )}
 
-      <div className="w-full max-w-5xl">
+      <div className="w-full max-w-2xl">
         <button
           onClick={onBack}
-          className="mb-6 md:mb-8 group relative overflow-hidden px-6 py-3 rounded-2xl transition-all hover:scale-105"
+          className="mb-8 group relative overflow-hidden px-6 py-3 rounded-2xl transition-all hover:scale-105"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-purple-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"></div>
           <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -85,115 +157,95 @@ export default function DailyCheckin({ onBack }: DailyCheckinProps) {
           </div>
         </button>
 
-        <div className="flex flex-col items-center gap-6 md:gap-8 mb-8 md:mb-12">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
-              <Image
-                src="/images/arcium-logo.png"
-                alt="Arcium Logo"
-                width={80}
-                height={80}
-                className="object-contain w-full h-full"
-              />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight">GMPC Daily</h1>
-              <p className="text-sm md:text-base text-cyan-300 font-medium tracking-wider">Good MPC Practice</p>
-            </div>
-          </div>
+        <div className="bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-slate-800/95 backdrop-blur-xl rounded-3xl p-8 md:p-12 shadow-2xl border border-purple-500/30">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-12 text-center">Daily Check-in</h1>
 
-          <p className="text-sm md:text-base text-white/70 max-w-2xl mx-auto text-center leading-relaxed px-4">
-            Build consistency in your confidential computing learning journey
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-8 max-w-3xl mx-auto">
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 md:p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <Calendar className="w-5 h-5 text-cyan-400" />
-              <p className="text-xs md:text-sm text-white/60 font-medium">This Week</p>
-            </div>
-            <p className="text-2xl md:text-3xl font-bold text-white">
-              {completedCount} <span className="text-lg md:text-xl text-white/60">/ {DAYS.length}</span>
-            </p>
-          </div>
-
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-4 md:p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <Trophy className="w-5 h-5 text-cyan-400" />
-              <p className="text-xs md:text-sm text-white/60 font-medium">Progress</p>
-            </div>
-            <p className="text-2xl md:text-3xl font-bold text-white">{Math.round(progressPercentage)}%</p>
-          </div>
-        </div>
-
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 lg:p-10 shadow-2xl max-w-3xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {DAYS.map((day, index) => {
+          {/* Days grid */}
+          <div className="grid grid-cols-4 gap-4 mb-10">
+            {DAYS.slice(0, 4).map((day, index) => {
               const isToday = index === currentDayIndex
               const isChecked = checkedDays[index]
-              const isClickable = isToday && !isChecked
-              const isFlipping = flippingDay === index
 
               return (
-                <button
-                  key={day}
-                  onClick={(e) => handleCheckIn(index, e)}
-                  disabled={!isClickable}
-                  className={`
-                    relative flex flex-col items-center justify-center p-4 md:p-6 rounded-2xl transition-all
-                    ${isChecked ? "bg-gradient-to-br from-green-500/20 to-green-600/20 border-2 border-green-400" : ""}
-                    ${isToday && !isChecked ? "bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border-2 border-cyan-400 hover:scale-105 cursor-pointer" : ""}
-                    ${!isToday && !isChecked ? "bg-white/5 border border-white/10 opacity-40 cursor-not-allowed" : ""}
-                    ${isFlipping ? "animate-flip-card" : ""}
-                  `}
-                  style={{
-                    transform: isFlipping ? "rotateY(360deg)" : "rotateY(0deg)",
-                    transition: "transform 0.8s ease-in-out, all 0.3s",
-                    minHeight: "140px",
-                  }}
-                >
+                <div key={day} className="flex flex-col items-center gap-3">
+                  <p className={`text-base font-semibold ${isChecked ? "text-green-400" : "text-white/80"}`}>
+                    {isChecked ? "Claimed" : day}
+                  </p>
                   <div
-                    className={`
-                      w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center mb-3 transition-all
-                      ${isChecked ? "bg-green-500 scale-110" : isToday ? "bg-cyan-400" : "bg-white/10"}
-                    `}
+                    className="w-full aspect-square rounded-2xl relative overflow-hidden shadow-lg"
+                    style={{
+                      backgroundImage: "url('/images/img-7855.jpeg')",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
                   >
-                    {isChecked ? (
-                      <Check className="w-6 h-6 md:w-7 md:h-7 text-white" strokeWidth={3} />
-                    ) : (
-                      <span className="text-white font-bold text-lg">{index + 1}</span>
+                    {isChecked && (
+                      <div className="absolute inset-0 bg-green-500/90 flex items-center justify-center">
+                        <Check className="w-12 h-12 md:w-16 md:h-16 text-white" strokeWidth={3} />
+                      </div>
+                    )}
+                    {isToday && !isChecked && (
+                      <div className="absolute inset-0 bg-yellow-400/30 flex items-center justify-center">
+                        <span className="text-5xl md:text-6xl">☀️</span>
+                      </div>
                     )}
                   </div>
-
-                  <h3 className="text-base md:text-lg font-semibold text-white mb-1">{day}</h3>
-
-                  {isToday && !isChecked && <p className="text-xs text-cyan-300 font-medium">Click to check-in</p>}
-                  {isChecked && <p className="text-xs text-green-300 font-medium">Completed ✓</p>}
-                  {!isToday && !isChecked && <p className="text-xs text-white/40">Locked</p>}
-
-                  {isToday && !isChecked && (
-                    <div className="absolute inset-0 rounded-2xl bg-cyan-400/5 animate-pulse pointer-events-none"></div>
-                  )}
-                </button>
+                </div>
               )
             })}
           </div>
 
-          <div className="mt-8 pt-8 border-t border-white/10">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm text-white/70">Weekly Progress</span>
-              <span className="text-sm text-cyan-300 font-bold">{Math.round(progressPercentage)}% Complete</span>
-            </div>
-            <div className="relative w-full bg-white/10 rounded-full h-3 overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 transition-all duration-700 ease-out rounded-full relative"
-                style={{ width: `${progressPercentage}%` }}
-              >
-                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-              </div>
-            </div>
+          {/* Second row */}
+          <div className="grid grid-cols-3 gap-4 mb-10 max-w-md mx-auto">
+            {DAYS.slice(4).map((day, index) => {
+              const actualIndex = index + 4
+              const isToday = actualIndex === currentDayIndex
+              const isChecked = checkedDays[actualIndex]
+
+              return (
+                <div key={day} className="flex flex-col items-center gap-3">
+                  <p className={`text-base font-semibold ${isChecked ? "text-green-400" : "text-white/80"}`}>
+                    {isChecked ? "Claimed" : day}
+                  </p>
+                  <div
+                    className="w-full aspect-square rounded-2xl relative overflow-hidden shadow-lg"
+                    style={{
+                      backgroundImage: "url('/images/img-7855.jpeg')",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  >
+                    {isChecked && (
+                      <div className="absolute inset-0 bg-green-500/90 flex items-center justify-center">
+                        <Check className="w-12 h-12 md:w-16 md:h-16 text-white" strokeWidth={3} />
+                      </div>
+                    )}
+                    {isToday && !isChecked && (
+                      <div className="absolute inset-0 bg-yellow-400/30 flex items-center justify-center">
+                        <span className="text-5xl md:text-6xl">☀️</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
           </div>
+
+          {/* Check-in button */}
+          <button
+            onClick={handleCheckIn}
+            disabled={hasCheckedToday}
+            className={`
+              w-full py-5 rounded-2xl text-xl font-semibold transition-all
+              ${
+                hasCheckedToday
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:scale-105 active:scale-95 shadow-lg"
+              }
+            `}
+          >
+            {hasCheckedToday ? "Checked" : "Check In"}
+          </button>
         </div>
       </div>
     </div>

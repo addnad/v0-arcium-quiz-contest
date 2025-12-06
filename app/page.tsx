@@ -43,10 +43,16 @@ export default function Home() {
   const [sectionScore, setSectionScore] = useState(0)
   const [completedSections, setCompletedSections] = useState<CompletedSection[]>([])
   const [showSocialCard, setShowSocialCard] = useState(false)
+  const [username, setUsername] = useState<string>("")
 
   const currentSection = QUIZ_SECTIONS[currentSectionIndex]
 
-  useEffect(() => {}, [])
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("arcium-username")
+    if (storedUsername) {
+      setUsername(storedUsername)
+    }
+  }, [])
 
   const handleVideoEnd = useCallback(() => {
     setVideoWatched(true)
@@ -241,7 +247,16 @@ export default function Home() {
                     textShadow: "0 0 20px rgba(93, 226, 218, 0.2)",
                   }}
                 >
-                  Welcome to the <span className="text-cyan-300">&lt;encrypted&gt;</span> World
+                  {username ? (
+                    <>
+                      Hey <span className="text-cyan-300 font-bold">{username}</span>, Welcome to the{" "}
+                      <span className="text-cyan-300">&lt;encrypted&gt;</span> World
+                    </>
+                  ) : (
+                    <>
+                      Welcome to the <span className="text-cyan-300">&lt;encrypted&gt;</span> World
+                    </>
+                  )}
                 </h1>
                 <p className="text-sm md:text-base text-white/70 max-w-3xl mx-auto leading-relaxed">
                   Learn and test your knowledge about Arcium's confidential computing network and ecosystem
@@ -424,7 +439,7 @@ export default function Home() {
 
       {appState === "games" && <GamesHub onBack={handleBackToFeatures} />}
 
-      {appState === "gmpcDaily" && <DailyCheckin onBack={handleBackToFeatures} />}
+      {appState === "gmpcDaily" && <DailyCheckin onBack={handleBackToFeatures} username={username} />}
 
       {appState === "fortressStories" && <FortressStories onBack={handleBackToFeatures} />}
 
