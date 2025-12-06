@@ -2,15 +2,21 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { Upload, Download, ArrowLeft, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ArrowLeft, Download, Upload } from "lucide-react"
 import { getUserProfile } from "@/lib/game-storage"
 import { getOverallLeaderboard } from "@/lib/global-leaderboard"
+import { Input } from "@/components/ui/input"
 
-function SocialCardGenerator({ onBack }: { onBack: () => void }) {
-  const [profileImage, setProfileImage] = useState<string | null>(null)
+interface SocialCardGeneratorProps {
+  onBack: () => void
+}
+
+export default function SocialCardGenerator({ onBack }: SocialCardGeneratorProps) {
+  const [profileImage, setProfileImage] = useState<string>("")
+  const [cardName, setCardName] = useState("")
   const [username, setUsername] = useState("")
   const [rank, setRank] = useState<number | null>(null)
   const [totalScore, setTotalScore] = useState(0)
@@ -24,6 +30,7 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
       const profile = getUserProfile()
       if (profile) {
         setUsername(profile.username)
+        setCardName(profile.username)
 
         // Get overall leaderboard to find rank
         const leaderboard = await getOverallLeaderboard(100)
@@ -79,66 +86,44 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
         profileImg.src = profileImage
       })
 
-      // Load Arcium logo
-      const logoImg = new Image()
-      logoImg.crossOrigin = "anonymous"
-
-      await new Promise((resolve, reject) => {
-        logoImg.onload = resolve
-        logoImg.onerror = reject
-        logoImg.src = "/images/arcium-logo.png"
-      })
-
-      // Draw based on selected template
+      // Draw card based on template
       if (selectedTemplate === "gradient") {
         // Gradient background
         const gradient = ctx.createLinearGradient(0, 0, size, size)
-        gradient.addColorStop(0, "#06b6d4") // cyan-500
-        gradient.addColorStop(0.5, "#a855f7") // purple-500
-        gradient.addColorStop(1, "#ec4899") // pink-500
+        gradient.addColorStop(0, "#6c44fc")
+        gradient.addColorStop(0.5, "#4a2e8f")
+        gradient.addColorStop(1, "#2a1a5f")
         ctx.fillStyle = gradient
         ctx.fillRect(0, 0, size, size)
 
-        // Pattern overlay
-        ctx.globalAlpha = 0.1
-        ctx.fillStyle = "#ffffff"
-        for (let x = 0; x < size; x += 20) {
-          for (let y = 0; y < size; y += 20) {
-            ctx.beginPath()
-            ctx.arc(x, y, 1, 0, Math.PI * 2)
-            ctx.fill()
-          }
-        }
-        ctx.globalAlpha = 1
-
         // Profile image (circular)
-        const profileSize = 128
+        const profileSize = 180
         const profileX = size / 2
-        const profileY = 280
+        const profileY = 200
+
         ctx.save()
         ctx.beginPath()
         ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
-        ctx.closePath()
         ctx.clip()
         ctx.drawImage(profileImg, profileX - profileSize / 2, profileY - profileSize / 2, profileSize, profileSize)
         ctx.restore()
 
-        // White border around profile
+        // Border around profile
         ctx.strokeStyle = "#ffffff"
         ctx.lineWidth = 4
         ctx.beginPath()
         ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
         ctx.stroke()
 
-        // Username
+        // Username - using cardName instead of username
         ctx.fillStyle = "#ffffff"
         ctx.font = "bold 48px sans-serif"
         ctx.textAlign = "center"
-        ctx.fillText(username || "Your Name", size / 2, 420)
+        ctx.fillText(cardName || "Your Name", size / 2, 420)
 
         // Subtitle
         ctx.font = "16px sans-serif"
-        ctx.fillStyle = "rgba(255, 255, 255, 0.8)"
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
         ctx.fillText("Privacy Pioneer", size / 2, 450)
 
         // Stats box background
@@ -177,184 +162,168 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
         ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
         ctx.fillText("Games", 600, statY + 25)
 
-        // Logo and branding
-        const logoSize = 24
-        const brandingY = 690
-        ctx.drawImage(logoImg, size / 2 - 100, brandingY, logoSize, logoSize)
-        ctx.font = "bold 18px sans-serif"
+        // Branding - Changed from "Arcium Quiz Contest" to "My Arcium Social Card"
+        const logoImg = new Image()
+        logoImg.crossOrigin = "anonymous"
+        await new Promise((resolve) => {
+          logoImg.onload = resolve
+          logoImg.src = "/images/arcium-logo.png"
+        })
+
+        ctx.drawImage(logoImg, size / 2 - 80, boxY + 160, 32, 32)
         ctx.fillStyle = "#ffffff"
-        ctx.textAlign = "left"
-        ctx.fillText("Arcium Quiz Contest", size / 2 - 70, brandingY + 18)
+        ctx.font = "bold 20px sans-serif"
+        ctx.fillText("My Arcium Social Card", size / 2 + 20, boxY + 185)
       } else if (selectedTemplate === "minimal") {
         // White background
         ctx.fillStyle = "#ffffff"
         ctx.fillRect(0, 0, size, size)
 
-        // Profile image (circular)
-        const profileSize = 128
+        // Profile image
+        const profileSize = 160
         const profileX = size / 2
-        const profileY = 280
+        const profileY = 180
+
         ctx.save()
         ctx.beginPath()
         ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
-        ctx.closePath()
         ctx.clip()
         ctx.drawImage(profileImg, profileX - profileSize / 2, profileY - profileSize / 2, profileSize, profileSize)
         ctx.restore()
 
-        // Gray border around profile
-        ctx.strokeStyle = "#e5e7eb"
-        ctx.lineWidth = 4
+        // Border
+        ctx.strokeStyle = "#6c44fc"
+        ctx.lineWidth = 3
         ctx.beginPath()
         ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
         ctx.stroke()
 
-        // Username
-        ctx.fillStyle = "#111827"
-        ctx.font = "bold 48px sans-serif"
+        // Username - using cardName
+        ctx.fillStyle = "#000000"
+        ctx.font = "bold 44px sans-serif"
         ctx.textAlign = "center"
-        ctx.fillText(username || "Your Name", size / 2, 420)
+        ctx.fillText(cardName || "Your Name", size / 2, 380)
 
         // Subtitle
-        ctx.font = "16px sans-serif"
-        ctx.fillStyle = "#6b7280"
-        ctx.fillText("Privacy Pioneer", size / 2, 450)
-
-        // Stats box background
-        const boxY = 500
-        const boxHeight = 120
-        ctx.strokeStyle = "#e5e7eb"
-        ctx.lineWidth = 2
-        ctx.strokeRect(64, boxY, size - 128, boxHeight)
+        ctx.font = "18px sans-serif"
+        ctx.fillStyle = "#666666"
+        ctx.fillText("Privacy Pioneer", size / 2, 420)
 
         // Stats
-        const statY = boxY + 50
-        ctx.font = "bold 32px sans-serif"
-        ctx.fillStyle = "#111827"
+        const statsY = 500
+        ctx.font = "bold 36px sans-serif"
+        ctx.fillStyle = "#6c44fc"
 
         // Rank
-        ctx.fillText(`#${rank || "--"}`, 200, statY)
-        ctx.font = "12px sans-serif"
-        ctx.fillStyle = "#6b7280"
-        ctx.fillText("Rank", 200, statY + 25)
+        ctx.fillText(`#${rank || "--"}`, size / 2 - 220, statsY)
+        ctx.font = "14px sans-serif"
+        ctx.fillStyle = "#666666"
+        ctx.fillText("RANK", size / 2 - 220, statsY + 30)
 
         // Score
-        ctx.font = "bold 32px sans-serif"
-        ctx.fillStyle = "#111827"
-        ctx.fillText(totalScore.toLocaleString(), size / 2, statY)
-        ctx.font = "12px sans-serif"
-        ctx.fillStyle = "#6b7280"
-        ctx.fillText("Score", size / 2, statY + 25)
+        ctx.font = "bold 36px sans-serif"
+        ctx.fillStyle = "#6c44fc"
+        ctx.fillText(totalScore.toLocaleString(), size / 2, statsY)
+        ctx.font = "14px sans-serif"
+        ctx.fillStyle = "#666666"
+        ctx.fillText("SCORE", size / 2, statsY + 30)
 
         // Games
-        ctx.font = "bold 32px sans-serif"
-        ctx.fillStyle = "#111827"
-        ctx.fillText(gamesPlayed.toString(), 600, statY)
-        ctx.font = "12px sans-serif"
-        ctx.fillStyle = "#6b7280"
-        ctx.fillText("Games", 600, statY + 25)
+        ctx.font = "bold 36px sans-serif"
+        ctx.fillStyle = "#6c44fc"
+        ctx.fillText(gamesPlayed.toString(), size / 2 + 220, statsY)
+        ctx.font = "14px sans-serif"
+        ctx.fillStyle = "#666666"
+        ctx.fillText("GAMES", size / 2 + 220, statsY + 30)
 
-        // Logo and branding
-        const logoSize = 24
-        const brandingY = 690
-        ctx.drawImage(logoImg, size / 2 - 100, brandingY, logoSize, logoSize)
-        ctx.font = "bold 18px sans-serif"
-        ctx.fillStyle = "#111827"
-        ctx.textAlign = "left"
-        ctx.fillText("Arcium Quiz Contest", size / 2 - 70, brandingY + 18)
+        // Branding - Updated text
+        const logoImg = new Image()
+        logoImg.crossOrigin = "anonymous"
+        await new Promise((resolve) => {
+          logoImg.onload = resolve
+          logoImg.src = "/images/arcium-logo.png"
+        })
+
+        ctx.drawImage(logoImg, size / 2 - 100, 680, 32, 32)
+        ctx.fillStyle = "#000000"
+        ctx.font = "bold 20px sans-serif"
+        ctx.fillText("My Arcium Social Card", size / 2 + 30, 700)
       } else if (selectedTemplate === "bold") {
-        // Dark background
-        ctx.fillStyle = "#111827"
+        // Bold colorful background
+        const gradient = ctx.createLinearGradient(0, 0, size, size)
+        gradient.addColorStop(0, "#ff006e")
+        gradient.addColorStop(0.5, "#8338ec")
+        gradient.addColorStop(1, "#3a86ff")
+        ctx.fillStyle = gradient
         ctx.fillRect(0, 0, size, size)
 
-        // Electric effect lines
-        const gradient1 = ctx.createLinearGradient(0, 0, size, 0)
-        gradient1.addColorStop(0, "transparent")
-        gradient1.addColorStop(0.5, "#06b6d4")
-        gradient1.addColorStop(1, "transparent")
-        ctx.fillStyle = gradient1
-        ctx.globalAlpha = 0.5
-        ctx.fillRect(0, 0, size, 4)
-        ctx.fillRect(0, size - 4, size, 4)
-        ctx.globalAlpha = 1
+        // Add pattern overlay
+        ctx.fillStyle = "rgba(255, 255, 255, 0.05)"
+        for (let i = 0; i < size; i += 40) {
+          ctx.fillRect(i, 0, 2, size)
+        }
 
-        // Profile image (circular)
-        const profileSize = 128
+        // Profile image
+        const profileSize = 200
         const profileX = size / 2
-        const profileY = 280
+        const profileY = 220
+
         ctx.save()
         ctx.beginPath()
         ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
-        ctx.closePath()
         ctx.clip()
         ctx.drawImage(profileImg, profileX - profileSize / 2, profileY - profileSize / 2, profileSize, profileSize)
         ctx.restore()
 
-        // Cyan border around profile
-        ctx.strokeStyle = "#06b6d4"
-        ctx.lineWidth = 4
+        // Thick border
+        ctx.strokeStyle = "#ffffff"
+        ctx.lineWidth = 6
         ctx.beginPath()
         ctx.arc(profileX, profileY, profileSize / 2, 0, Math.PI * 2)
         ctx.stroke()
 
-        // Username
+        // Username - using cardName
         ctx.fillStyle = "#ffffff"
-        ctx.font = "bold 48px sans-serif"
+        ctx.font = "bold 52px sans-serif"
         ctx.textAlign = "center"
-        ctx.fillText(username || "Your Name", size / 2, 420)
+        ctx.fillText(cardName || "Your Name", size / 2, 460)
 
-        // Subtitle
-        ctx.font = "16px sans-serif"
-        ctx.fillStyle = "#06b6d4"
-        ctx.fillText("Privacy Pioneer", size / 2, 450)
+        // Stats in bold boxes
+        const boxY = 530
+        const boxWidth = 200
+        const boxHeight = 100
+        const gap = 20
 
-        // Stats box background (gradient)
-        const boxY = 500
-        const boxHeight = 120
-        const boxGradient = ctx.createLinearGradient(64, boxY, size - 64, boxY)
-        boxGradient.addColorStop(0, "rgba(6, 182, 212, 0.2)")
-        boxGradient.addColorStop(1, "rgba(168, 85, 247, 0.2)")
-        ctx.fillStyle = boxGradient
-        ctx.fillRect(64, boxY, size - 128, boxHeight)
-        ctx.strokeStyle = "rgba(6, 182, 212, 0.5)"
-        ctx.lineWidth = 2
-        ctx.strokeRect(64, boxY, size - 128, boxHeight)
-
-        // Stats
-        const statY = boxY + 50
-        ctx.font = "bold 32px sans-serif"
-        ctx.fillStyle = "#06b6d4"
-
-        // Rank
-        ctx.fillText(`#${rank || "--"}`, 200, statY)
-        ctx.font = "12px sans-serif"
-        ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
-        ctx.fillText("Rank", 200, statY + 25)
-
-        // Score
-        ctx.font = "bold 32px sans-serif"
-        ctx.fillStyle = "#06b6d4"
-        ctx.fillText(totalScore.toLocaleString(), size / 2, statY)
-        ctx.font = "12px sans-serif"
-        ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
-        ctx.fillText("Score", size / 2, statY + 25)
-
-        // Games
-        ctx.font = "bold 32px sans-serif"
-        ctx.fillStyle = "#06b6d4"
-        ctx.fillText(gamesPlayed.toString(), 600, statY)
-        ctx.font = "12px sans-serif"
-        ctx.fillStyle = "rgba(255, 255, 255, 0.7)"
-        ctx.fillText("Games", 600, statY + 25)
-
-        // Logo and branding
-        const logoSize = 24
-        const brandingY = 690
-        ctx.drawImage(logoImg, size / 2 - 100, brandingY, logoSize, logoSize)
-        ctx.font = "bold 18px sans-serif"
+        // Rank box
+        ctx.fillStyle = "rgba(255, 255, 255, 0.2)"
+        ctx.fillRect(size / 2 - boxWidth - gap, boxY, boxWidth, boxHeight)
         ctx.fillStyle = "#ffffff"
-        ctx.textAlign = "left"
-        ctx.fillText("Arcium Quiz Contest", size / 2 - 70, brandingY + 18)
+        ctx.font = "bold 40px sans-serif"
+        ctx.fillText(`#${rank || "--"}`, size / 2 - boxWidth / 2 - gap, boxY + 55)
+        ctx.font = "16px sans-serif"
+        ctx.fillText("RANK", size / 2 - boxWidth / 2 - gap, boxY + 85)
+
+        // Score box
+        ctx.fillStyle = "rgba(255, 255, 255, 0.2)"
+        ctx.fillRect(size / 2 + gap, boxY, boxWidth, boxHeight)
+        ctx.fillStyle = "#ffffff"
+        ctx.font = "bold 32px sans-serif"
+        ctx.fillText(totalScore.toLocaleString(), size / 2 + boxWidth / 2 + gap, boxY + 50)
+        ctx.font = "16px sans-serif"
+        ctx.fillText("SCORE", size / 2 + boxWidth / 2 + gap, boxY + 80)
+
+        // Branding - Updated text
+        const logoImg = new Image()
+        logoImg.crossOrigin = "anonymous"
+        await new Promise((resolve) => {
+          logoImg.onload = resolve
+          logoImg.src = "/images/arcium-logo.png"
+        })
+
+        ctx.drawImage(logoImg, size / 2 - 100, 700, 32, 32)
+        ctx.fillStyle = "#ffffff"
+        ctx.font = "bold 20px sans-serif"
+        ctx.fillText("My Arcium Social Card", size / 2 + 30, 720)
       }
 
       // Convert to blob and download
@@ -366,7 +335,7 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
 
         const url = URL.createObjectURL(blob)
         const link = document.createElement("a")
-        link.download = `arcium-${username}-${selectedTemplate}-card.png`
+        link.download = `arcium-${cardName || username}-${selectedTemplate}-card.png`
         link.href = url
         link.click()
 
@@ -378,20 +347,40 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
     }
   }
 
+  const handleShareToTwitter = async () => {
+    if (!profileImage) {
+      alert("Please upload a profile picture first")
+      return
+    }
+
+    const tweetText = `Check out my Arcium social card! 🔐✨\n\n🏆 Rank: #${rank || "--"}\n📊 Score: ${totalScore.toLocaleString()}\n🎮 Games Played: ${gamesPlayed}\n\nJoin the privacy revolution at https://stayencrypted.vercel.app/`
+
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
+    window.open(twitterUrl, "_blank")
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 p-4 lg:p-8">
+    <div
+      className="min-h-screen px-4 py-8"
+      style={{
+        background: "linear-gradient(135deg, #6c44fc 0%, #4a2e8f 50%, #2a1a5f 100%)",
+      }}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            onClick={onBack}
-            variant="ghost"
-            className="group text-white/80 hover:text-white hover:bg-white/10 transition-all"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-            Back to <span className="text-cyan-400 mx-1">{"<encrypted>"}</span> World
-          </Button>
-        </div>
+        <button
+          onClick={onBack}
+          className="group relative overflow-hidden px-6 py-3 rounded-2xl transition-all hover:scale-105 mb-8"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-purple-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"></div>
+          <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="relative flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+            <span>
+              Back to <span className="text-cyan-300 font-semibold">{"<encrypted>"}</span> World
+            </span>
+          </div>
+        </button>
 
         <div className="text-center mb-12">
           <h1 className="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -418,24 +407,35 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
                 />
                 <Button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600"
+                  variant="outline"
+                  className="w-full bg-white/5 border-white/20 hover:bg-white/10 text-white"
                 >
                   <Upload className="w-4 h-4 mr-2" />
-                  Upload Profile Picture
+                  Upload Image
                 </Button>
                 {profileImage && (
-                  <div className="flex justify-center">
-                    <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-purple-400/50">
-                      <img
-                        src={profileImage || "/placeholder.svg"}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                        crossOrigin="anonymous"
-                      />
-                    </div>
+                  <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-white/20">
+                    <img
+                      src={profileImage || "/placeholder.svg"}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 )}
               </div>
+            </Card>
+
+            <Card className="bg-white/5 border-white/10 p-6 backdrop-blur-xl">
+              <h3 className="text-xl font-bold text-white mb-4">Display Name</h3>
+              <Input
+                type="text"
+                value={cardName}
+                onChange={(e) => setCardName(e.target.value)}
+                placeholder="Your name on the card"
+                className="w-full bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                maxLength={30}
+              />
+              <p className="text-white/50 text-xs mt-2">This name will appear on your social card</p>
             </Card>
 
             {/* Template Selection */}
@@ -447,30 +447,33 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
                   className={`p-4 rounded-xl border-2 transition-all ${
                     selectedTemplate === "gradient"
                       ? "border-cyan-400 bg-cyan-400/10"
-                      : "border-white/10 hover:border-white/30"
+                      : "border-white/20 bg-white/5 hover:bg-white/10"
                   }`}
                 >
-                  <div className="text-white text-sm font-medium">Gradient</div>
+                  <div className="h-16 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 mb-2"></div>
+                  <p className="text-white text-sm font-medium">Gradient</p>
                 </button>
                 <button
                   onClick={() => setSelectedTemplate("minimal")}
                   className={`p-4 rounded-xl border-2 transition-all ${
                     selectedTemplate === "minimal"
                       ? "border-cyan-400 bg-cyan-400/10"
-                      : "border-white/10 hover:border-white/30"
+                      : "border-white/20 bg-white/5 hover:bg-white/10"
                   }`}
                 >
-                  <div className="text-white text-sm font-medium">Minimal</div>
+                  <div className="h-16 rounded-lg bg-white mb-2"></div>
+                  <p className="text-white text-sm font-medium">Minimal</p>
                 </button>
                 <button
                   onClick={() => setSelectedTemplate("bold")}
                   className={`p-4 rounded-xl border-2 transition-all ${
                     selectedTemplate === "bold"
                       ? "border-cyan-400 bg-cyan-400/10"
-                      : "border-white/10 hover:border-white/30"
+                      : "border-white/20 bg-white/5 hover:bg-white/10"
                   }`}
                 >
-                  <div className="text-white text-sm font-medium">Bold</div>
+                  <div className="h-16 rounded-lg bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500 mb-2"></div>
+                  <p className="text-white text-sm font-medium">Bold</p>
                 </button>
               </div>
             </Card>
@@ -478,26 +481,16 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
 
           {/* Right side - Preview */}
           <div className="space-y-4">
-            <div className="flex items-center justify-center">
-              <div className="w-full max-w-md">
-                {/* Gradient Template */}
+            <Card className="bg-white/5 border-white/10 p-6 backdrop-blur-xl">
+              <h3 className="text-xl font-bold text-white mb-4">Preview</h3>
+              <div ref={cardRef} className="w-full aspect-square rounded-2xl overflow-hidden shadow-2xl">
                 {selectedTemplate === "gradient" && (
                   <div
-                    ref={cardRef}
-                    data-card="true"
-                    className="aspect-square bg-gradient-to-br from-cyan-500 via-purple-500 to-pink-500 rounded-3xl p-8 relative overflow-hidden"
+                    className="w-full h-full relative"
+                    style={{
+                      background: "linear-gradient(135deg, #6c44fc 0%, #4a2e8f 50%, #2a1a5f 100%)",
+                    }}
                   >
-                    {/* Pattern Overlay */}
-                    <div className="absolute inset-0 opacity-10">
-                      <div
-                        className="absolute inset-0"
-                        style={{
-                          backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)",
-                          backgroundSize: "20px 20px",
-                        }}
-                      />
-                    </div>
-
                     <div className="relative h-full flex flex-col">
                       {/* Profile Section */}
                       <div className="flex-1 flex flex-col items-center justify-center gap-4">
@@ -514,7 +507,7 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
                           )}
                         </div>
                         <div className="text-center">
-                          <h2 className="text-3xl font-bold text-white mb-1">{username || "Your Name"}</h2>
+                          <h2 className="text-3xl font-bold text-white mb-1">{cardName || "Your Name"}</h2>
                           <p className="text-white/80 text-sm">Privacy Pioneer</p>
                         </div>
                       </div>
@@ -537,26 +530,21 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
                         </div>
                       </div>
 
-                      {/* Branding */}
+                      {/* Branding - Updated text */}
                       <div className="mt-6 flex items-center justify-center gap-2">
                         <img src="/images/arcium-logo.png" alt="Arcium" className="w-6 h-6" crossOrigin="anonymous" />
-                        <span className="text-white font-semibold">Arcium Quiz Contest</span>
+                        <span className="text-white font-semibold">My Arcium Social Card</span>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Minimal Template */}
                 {selectedTemplate === "minimal" && (
-                  <div
-                    ref={cardRef}
-                    data-card="true"
-                    className="aspect-square bg-white rounded-3xl p-8 relative overflow-hidden"
-                  >
-                    <div className="relative h-full flex flex-col">
-                      {/* Profile Section */}
+                  <div className="w-full h-full bg-white p-8">
+                    <div className="relative h-full flex flex-col items-center">
+                      {/* Profile */}
                       <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                        <div className="w-32 h-32 rounded-full border-4 border-gray-200 overflow-hidden bg-gray-100">
+                        <div className="w-28 h-28 rounded-full border-4 border-purple-500 overflow-hidden bg-gray-100">
                           {profileImage ? (
                             <img
                               src={profileImage || "/placeholder.svg"}
@@ -565,61 +553,64 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
                               crossOrigin="anonymous"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-4xl">
+                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-3xl">
                               👤
                             </div>
                           )}
                         </div>
                         <div className="text-center">
-                          <h2 className="text-3xl font-bold text-gray-900 mb-1">{username || "Your Name"}</h2>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-1">{cardName || "Your Name"}</h2>
                           <p className="text-gray-600 text-sm">Privacy Pioneer</p>
                         </div>
                       </div>
 
-                      {/* Stats Section */}
-                      <div className="border-2 border-gray-200 rounded-2xl p-6">
-                        <div className="grid grid-cols-3 gap-4 text-center">
-                          <div>
-                            <div className="text-2xl font-bold text-gray-900">#{rank || "--"}</div>
-                            <div className="text-gray-600 text-xs">Rank</div>
-                          </div>
-                          <div>
-                            <div className="text-2xl font-bold text-gray-900">{totalScore.toLocaleString()}</div>
-                            <div className="text-gray-600 text-xs">Score</div>
-                          </div>
-                          <div>
-                            <div className="text-2xl font-bold text-gray-900">{gamesPlayed}</div>
-                            <div className="text-gray-600 text-xs">Games</div>
-                          </div>
+                      {/* Stats */}
+                      <div className="w-full grid grid-cols-3 gap-4 text-center mb-6">
+                        <div>
+                          <div className="text-2xl font-bold text-purple-600">#{rank || "--"}</div>
+                          <div className="text-gray-500 text-xs">RANK</div>
+                        </div>
+                        <div>
+                          <div className="text-xl font-bold text-purple-600">{totalScore.toLocaleString()}</div>
+                          <div className="text-gray-500 text-xs">SCORE</div>
+                        </div>
+                        <div>
+                          <div className="text-2xl font-bold text-purple-600">{gamesPlayed}</div>
+                          <div className="text-gray-500 text-xs">GAMES</div>
                         </div>
                       </div>
 
-                      {/* Branding */}
-                      <div className="mt-6 flex items-center justify-center gap-2">
-                        <img src="/images/arcium-logo.png" alt="Arcium" className="w-6 h-6" crossOrigin="anonymous" />
-                        <span className="text-gray-900 font-semibold">Arcium Quiz Contest</span>
+                      {/* Branding - Updated text */}
+                      <div className="flex items-center justify-center gap-2">
+                        <img src="/images/arcium-logo.png" alt="Arcium" className="w-5 h-5" crossOrigin="anonymous" />
+                        <span className="text-gray-900 font-semibold text-sm">My Arcium Social Card</span>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Bold Template */}
                 {selectedTemplate === "bold" && (
                   <div
-                    ref={cardRef}
-                    data-card="true"
-                    className="aspect-square bg-gray-900 rounded-3xl p-8 relative overflow-hidden"
+                    className="w-full h-full relative overflow-hidden"
+                    style={{
+                      background: "linear-gradient(135deg, #ff006e 0%, #8338ec 50%, #3a86ff 100%)",
+                    }}
                   >
-                    {/* Electric effect */}
-                    <div className="absolute inset-0 opacity-20">
-                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent animate-pulse" />
-                      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent animate-pulse" />
+                    {/* Pattern overlay */}
+                    <div className="absolute inset-0 opacity-10">
+                      {Array.from({ length: 20 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="absolute bg-white"
+                          style={{ left: `${i * 5}%`, width: "2px", height: "100%" }}
+                        />
+                      ))}
                     </div>
 
-                    <div className="relative h-full flex flex-col">
-                      {/* Profile Section */}
+                    <div className="relative h-full flex flex-col p-8">
+                      {/* Profile */}
                       <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                        <div className="w-32 h-32 rounded-full border-4 border-cyan-400 overflow-hidden bg-cyan-400/20">
+                        <div className="w-36 h-36 rounded-full border-4 border-white overflow-hidden bg-white/20">
                           {profileImage ? (
                             <img
                               src={profileImage || "/placeholder.svg"}
@@ -628,60 +619,56 @@ function SocialCardGenerator({ onBack }: { onBack: () => void }) {
                               crossOrigin="anonymous"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-cyan-400 text-4xl">
-                              👤
-                            </div>
+                            <div className="w-full h-full flex items-center justify-center text-white text-4xl">👤</div>
                           )}
                         </div>
-                        <div className="text-center">
-                          <h2 className="text-3xl font-bold text-white mb-1">{username || "Your Name"}</h2>
-                          <p className="text-cyan-400 text-sm font-semibold">Privacy Pioneer</p>
+                        <h2 className="text-3xl font-bold text-white text-center">{cardName || "Your Name"}</h2>
+                      </div>
+
+                      {/* Stats boxes */}
+                      <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                          <div className="text-3xl font-bold text-white">#{rank || "--"}</div>
+                          <div className="text-white/90 text-xs font-semibold">RANK</div>
+                        </div>
+                        <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-white">{totalScore.toLocaleString()}</div>
+                          <div className="text-white/90 text-xs font-semibold">SCORE</div>
                         </div>
                       </div>
 
-                      {/* Stats Section */}
-                      <div className="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-2xl p-6 border-2 border-cyan-400/50">
-                        <div className="grid grid-cols-3 gap-4 text-center">
-                          <div>
-                            <div className="text-2xl font-bold text-cyan-400">#{rank || "--"}</div>
-                            <div className="text-white/70 text-xs">Rank</div>
-                          </div>
-                          <div>
-                            <div className="text-2xl font-bold text-cyan-400">{totalScore.toLocaleString()}</div>
-                            <div className="text-white/70 text-xs">Score</div>
-                          </div>
-                          <div>
-                            <div className="text-2xl font-bold text-cyan-400">{gamesPlayed}</div>
-                            <div className="text-white/70 text-xs">Games</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Branding */}
-                      <div className="mt-6 flex items-center justify-center gap-2">
-                        <img src="/images/arcium-logo.png" alt="Arcium" className="w-6 h-6" />
-                        <span className="text-white font-semibold">Arcium Quiz Contest</span>
+                      {/* Branding - Updated text */}
+                      <div className="flex items-center justify-center gap-2">
+                        <img src="/images/arcium-logo.png" alt="Arcium" className="w-6 h-6" crossOrigin="anonymous" />
+                        <span className="text-white font-bold">My Arcium Social Card</span>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+            </Card>
 
-            {/* Download Button */}
-            <Button
-              onClick={handleDownload}
-              disabled={!profileImage}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Download Card
-            </Button>
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                onClick={handleDownload}
+                disabled={!profileImage}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download Card
+              </Button>
+              <Button
+                onClick={handleShareToTwitter}
+                disabled={!profileImage}
+                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share on X
+              </Button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   )
 }
-
-export default SocialCardGenerator
