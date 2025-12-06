@@ -10,12 +10,14 @@ import DailyCheckin from "@/components/daily-checkin"
 import FortressStories from "@/components/fortress-stories"
 import GamesHub from "@/components/games-hub" // Imported GamesHub component
 import SocialCardGenerator from "@/components/social-card-generator"
+import UsernamePrompt from "@/components/username-prompt"
 import { getQuestionsBySection, randomizeQuestionOptions, QUIZ_SECTIONS, type Question } from "@/lib/quiz-data"
 import Image from "next/image"
 import { Sparkles } from "lucide-react"
 
 type AppState =
   | "video"
+  | "usernameEntry"
   | "featureChooser"
   | "gmpcDaily"
   | "fortressStories"
@@ -51,13 +53,23 @@ export default function Home() {
     const storedUsername = localStorage.getItem("arcium-username")
     if (storedUsername) {
       setUsername(storedUsername)
+      const videoWatched = localStorage.getItem("arcium-video-watched")
+      if (videoWatched) {
+        setAppState("featureChooser")
+      }
     }
+  }, [])
+
+  const handleUsernameSubmit = useCallback((submittedUsername: string) => {
+    setUsername(submittedUsername)
+    localStorage.setItem("arcium-username", submittedUsername)
+    setAppState("featureChooser")
   }, [])
 
   const handleVideoEnd = useCallback(() => {
     setVideoWatched(true)
     localStorage.setItem("arcium-video-watched", "true")
-    setAppState("featureChooser")
+    setAppState("usernameEntry")
   }, [])
 
   const handleGMPCDaily = useCallback(() => {
@@ -163,13 +175,16 @@ export default function Home() {
     setAppState("socialCard")
   }, [])
 
+  if (appState === "usernameEntry") {
+    return <UsernamePrompt onSubmit={handleUsernameSubmit} />
+  }
+
   if (appState === "socialCard") {
     return <SocialCardGenerator onBack={() => setAppState("featureChooser")} />
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative overflow-hidden">
-      {/* Background overlay for quiz states */}
       {(appState === "quiz" ||
         appState === "sectionResults" ||
         appState === "sectionIntro" ||
@@ -297,9 +312,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Enhanced feature cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8">
-              {/* GMPC Daily */}
               <button
                 onClick={handleGMPCDaily}
                 className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-cyan-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
@@ -326,7 +339,6 @@ export default function Home() {
                 </div>
               </button>
 
-              {/* Knowledge Quiz */}
               <button
                 onClick={handleKnowledgeQuiz}
                 className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-purple-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
@@ -379,7 +391,6 @@ export default function Home() {
                 </div>
               </button>
 
-              {/* Fortress Stories */}
               <button
                 onClick={handleFortressStories}
                 className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-orange-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
@@ -406,7 +417,6 @@ export default function Home() {
                 </div>
               </button>
 
-              {/* Social Card Generator */}
               <button
                 onClick={handleSocialCard}
                 className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-pink-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
