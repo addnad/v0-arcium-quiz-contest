@@ -12,42 +12,57 @@ interface Word {
 }
 
 const easyWords: Word[] = [
-  { word: "ARCIUM", definition: "The confidential computing network for decentralized AI and computation" },
-  { word: "ARX", definition: "Arcium's Multi-Party Execution Environments for secure computation" },
-  { word: "MPC", definition: "Multi-Party Computation - computing on encrypted data across multiple parties" },
-  { word: "MXE", definition: "Multi-Party Execution Environment - Arcium's core compute infrastructure" },
-  { word: "ENCRYPTED", definition: "Data transformed into a secret code to prevent unauthorized access" },
+  { word: "ENCRYPTION", definition: "The process of converting information into code to prevent unauthorized access" },
+  { word: "CONFIDENTIAL", definition: "Intended to be kept secret" },
+  { word: "BLOCKCHAIN", definition: "Distributed ledger technology with cryptographic security" },
+  { word: "ALGORITHM", definition: "A step-by-step procedure for solving a problem or completing a task" },
+  { word: "DISTRIBUTED", definition: "Spread across multiple locations or systems" },
+  { word: "PROTOCOL", definition: "A set of rules governing communication between systems" },
+  { word: "VALIDATOR", definition: "An entity that verifies and confirms transactions or computations" },
+  { word: "COMPUTATION", definition: "The process of calculating or processing data" },
+  { word: "TRANSPARENCY", definition: "Openness and visibility of operations and data" },
+  { word: "INTEGRITY", definition: "The state of being whole and uncorrupted" },
+  { word: "HASH", definition: "A fixed-size output derived from variable-size input data" },
+  { word: "SIGNATURE", definition: "A cryptographic proof of authenticity and integrity" },
+  { word: "THROUGHPUT", definition: "The amount of data processed in a given time period" },
+  { word: "LATENCY", definition: "The time delay between input and output in a system" },
+  { word: "PROXY", definition: "An intermediary acting on behalf of another entity" },
 ]
 
 const mediumWords: Word[] = [
-  { word: "CONFIDENTIAL", definition: "Intended to be kept secret and private" },
-  { word: "THRESHOLD", definition: "The minimum number of parties required to perform an operation in MPC" },
-  { word: "VERIFIABLE", definition: "Able to be checked or demonstrated to be true through cryptographic proofs" },
+  { word: "CRYPTOGRAPHY", definition: "The practice of secure communication in the presence of adversaries" },
+  { word: "MULTIPARTY", definition: "Involving multiple independent parties" },
+  { word: "VERIFIABLE", definition: "Able to be checked or demonstrated to be true or accurate" },
+  { word: "DECENTRALIZED", definition: "Distributed away from a central authority" },
+  { word: "AUTHENTICATION", definition: "The process of verifying the identity of a user or system" },
+  { word: "OBFUSCATION", definition: "Making something obscure or unclear to protect it" },
+  { word: "PERMISSIONLESS", definition: "Allowing anyone to participate without requiring approval" },
   { word: "TRUSTLESS", definition: "Not requiring trust in a third party to operate securely" },
-  { word: "DISTRIBUTED", definition: "Spread across multiple independent nodes or systems" },
-  { word: "PARALLELIZED", definition: "Executing multiple computations simultaneously for efficiency" },
-  { word: "ORCHESTRATION", definition: "Coordination and management of distributed compute resources" },
-  { word: "ATTESTATION", definition: "Cryptographic proof that computation was performed correctly" },
-  { word: "VALIDATOR", definition: "Entity that verifies and confirms the correctness of computations" },
-  { word: "DECENTRALIZED", definition: "Operating without a central controlling authority" },
+  { word: "IMMUTABLE", definition: "Unable to be changed or altered once recorded" },
+  { word: "ANONYMITY", definition: "The state of being anonymous or unidentifiable" },
+  { word: "CIPHERTEXT", definition: "Encrypted data that appears as random nonsense without the decryption key" },
+  { word: "ASYMMETRIC", definition: "Using different keys for encryption and decryption" },
+  { word: "SYMMETRIC", definition: "Using the same key for both encryption and decryption" },
+  { word: "CONSENSUS", definition: "General agreement among participants in a network" },
+  { word: "THRESHOLD", definition: "The minimum number of parties required to perform an operation" },
 ]
 
 const hardWords: Word[] = [
-  { word: "HOMOMORPHIC", definition: "Type of encryption allowing computation on encrypted data without decryption" },
-  { word: "SHAMIR", definition: "Creator of secret sharing scheme used in threshold cryptography" },
-  { word: "BYZANTINE", definition: "Relating to fault tolerance in systems with potentially malicious actors" },
+  { word: "HOMOMORPHIC", definition: "Type of encryption allowing computation on encrypted data" },
+  { word: "STEGANOGRAPHY", definition: "The practice of concealing messages within other non-secret data" },
   { word: "ZERO KNOWLEDGE", definition: "Proving knowledge of information without revealing the information itself" },
-  { word: "CRYPTANALYSIS", definition: "The study of analyzing cryptographic systems to find weaknesses" },
-  { word: "PSEUDONYMOUS", definition: "Using a consistent false identity while maintaining privacy" },
-  { word: "COMPARTMENTALIZED", definition: "Divided into isolated sections to prevent unauthorized access" },
-  { word: "OBFUSCATION", definition: "Making data or code deliberately difficult to understand" },
-  { word: "ADVERSARIAL", definition: "Designed to resist attacks from malicious parties" },
-  { word: "PERMISSIONLESS", definition: "Allowing anyone to participate without requiring approval" },
-  { word: "CONSENSUS", definition: "Agreement among distributed parties on the state of computation" },
+  { word: "CRYPTANALYSIS", definition: "The study of analyzing information systems to break cryptographic security" },
+  { word: "ORCHESTRATION", definition: "The coordination and management of complex computer systems" },
+  { word: "PSEUDONYMOUS", definition: "Using a false name while maintaining a consistent identity" },
+  { word: "RESILIENCE", definition: "The ability to recover quickly from difficulties or attacks" },
+  { word: "ATTESTATION", definition: "Proof or evidence that something is true or genuine" },
+  { word: "BYZANTINE", definition: "Relating to fault tolerance in distributed systems with malicious actors" },
+  { word: "PARALLELIZATION", definition: "Executing multiple processes simultaneously for efficiency" },
+  { word: "COMPARTMENTALIZED", definition: "Divided into separate sections to limit access" },
+  { word: "ADVERSARY", definition: "An opponent or attacker attempting to compromise security" },
+  { word: "ENTROPY", definition: "A measure of randomness or unpredictability" },
   { word: "DETERMINISTIC", definition: "Producing the same output for the same input every time" },
-  { word: "ENTROPY", definition: "A measure of randomness or unpredictability in cryptographic systems" },
-  { word: "FRAGMENTATION", definition: "Breaking data into smaller encrypted pieces for distribution" },
-  { word: "RESILIENCE", definition: "The ability to maintain security and functionality under attack" },
+  { word: "FRAGMENTATION", definition: "Breaking data into smaller pieces for distribution" },
 ]
 
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -155,9 +170,9 @@ export default function PrivacySpellingBee({ onBack }: PrivacySpellingBeeProps) 
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-2xl font-bold text-white">Easy</h3>
-                <span className="text-teal-400 text-xl">5 Words</span>
+                <span className="text-teal-400 text-xl">15 Words</span>
               </div>
-              <p className="text-white/70">Core Arcium concepts and basic terminology</p>
+              <p className="text-white/70">Basic privacy and cryptography terms</p>
             </button>
 
             <button
@@ -166,7 +181,7 @@ export default function PrivacySpellingBee({ onBack }: PrivacySpellingBeeProps) 
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-2xl font-bold text-white">Medium</h3>
-                <span className="text-cyan-400 text-xl">10 Words</span>
+                <span className="text-cyan-400 text-xl">15 Words</span>
               </div>
               <p className="text-white/70">Intermediate confidential computing concepts</p>
             </button>
@@ -179,7 +194,7 @@ export default function PrivacySpellingBee({ onBack }: PrivacySpellingBeeProps) 
                 <h3 className="text-2xl font-bold text-white">Hard</h3>
                 <span className="text-purple-400 text-xl">15 Words</span>
               </div>
-              <p className="text-white/70">Advanced cryptography and MPC terminology</p>
+              <p className="text-white/70">Advanced technical terminology</p>
             </button>
           </div>
         </div>

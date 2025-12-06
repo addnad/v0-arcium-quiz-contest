@@ -80,37 +80,13 @@ export function initializeAchievements(): void {
   const defaultAchievements: Achievement[] = [
     { id: "first_game", name: "First Steps", description: "Complete your first game", icon: "🎮" },
     { id: "quiz_master", name: "Quiz Master", description: "Score 100% on the Knowledge Quiz", icon: "🏆" },
-    { id: "cipher_expert", name: "Cipher Expert", description: "Complete Cipher Challenge", icon: "🔐" },
+    { id: "cipher_expert", name: "Cipher Expert", description: "Complete 5 Cipher Challenges", icon: "🔐" },
     { id: "speed_demon", name: "Speed Demon", description: "Score 800+ in Quick Fire MPC", icon: "⚡" },
     {
       id: "memory_champion",
       name: "Memory Champion",
       description: "Complete Fortress Vault in under 30 seconds",
       icon: "🎯",
-    },
-    {
-      id: "key_catcher_pro",
-      name: "Key Catcher Pro",
-      description: "Catch 50+ keys in Key Catcher",
-      icon: "🔑",
-    },
-    {
-      id: "spelling_master",
-      name: "Spelling Master",
-      description: "Complete all levels in Privacy Spelling Bee",
-      icon: "📝",
-    },
-    {
-      id: "threat_detector",
-      name: "Threat Detector",
-      description: "Identify all threats correctly in Threat Detector",
-      icon: "🛡️",
-    },
-    {
-      id: "data_defender",
-      name: "Data Defender",
-      description: "Complete all levels in Data Defender",
-      icon: "💾",
     },
     {
       id: "daily_dedication",
