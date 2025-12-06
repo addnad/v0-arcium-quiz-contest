@@ -1,11 +1,11 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Check, ArrowLeft, Calendar, Trophy } from "lucide-react"
 import Image from "next/image"
 import LogoScatter from "@/components/logo-scatter"
+import { createBrowserClient } from "@/lib/supabase/client"
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
@@ -19,20 +19,69 @@ export default function DailyCheckin({ onBack }: DailyCheckinProps) {
   const [showAnimation, setShowAnimation] = useState(false)
   const [animationPosition, setAnimationPosition] = useState({ x: 0, y: 0 })
   const [flippingDay, setFlippingDay] = useState<number | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    localStorage.removeItem("gmpc-checkins")
-    localStorage.removeItem("gmpc-last-check-date")
+    const loadCheckins = async () => {
+      const playerId = localStorage.getItem("arcium-player-id")
+      const username = localStorage.getItem("arcium-username")
 
-    const today = new Date().getDay()
-    const dayIndex = today === 0 ? 6 : today - 1
-    setCurrentDayIndex(dayIndex)
+      if (!playerId || !username) {
+        setIsLoading(false)
+        return
+      }
 
-    setCheckedDays(new Array(7).fill(false))
+      const today = new Date().getDay()
+      const dayIndex = today === 0 ? 6 : today - 1
+      setCurrentDayIndex(dayIndex)
+
+      try {
+        const supabase = createBrowserClient()
+
+        const now = new Date()
+        const dayOfWeek = now.getDay()
+        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+        const monday = new Date(now)
+        monday.setDate(now.getDate() + diff)
+        monday.setHours(0, 0, 0, 0)
+
+        const { data: weekCheckins } = await supabase
+          .from("checkins")
+          .select("check_in_date")
+          .eq("player_id", playerId)
+          .gte("check_in_date", monday.toISOString().split("T")[0])
+          .order("check_in_date", { ascending: true })
+
+        if (weekCheckins) {
+          const newCheckedDays = new Array(7).fill(false)
+          weekCheckins.forEach((checkin) => {
+            const checkinDate = new Date(checkin.check_in_date)
+            const checkinDay = checkinDate.getDay()
+            const checkinDayIndex = checkinDay === 0 ? 6 : checkinDay - 1
+            newCheckedDays[checkinDayIndex] = true
+          })
+          setCheckedDays(newCheckedDays)
+        }
+      } catch (error) {
+        console.error("Error loading check-ins:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadCheckins()
   }, [])
 
-  const handleCheckIn = (dayIndex: number, event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCheckIn = async (dayIndex: number, event: React.MouseEvent<HTMLButtonElement>) => {
     if (dayIndex !== currentDayIndex || checkedDays[dayIndex]) return
+
+    const playerId = localStorage.getItem("arcium-player-id")
+    const username = localStorage.getItem("arcium-username")
+
+    if (!playerId || !username) {
+      alert("Please log in to check in")
+      return
+    }
 
     const rect = event.currentTarget.getBoundingClientRect()
     setAnimationPosition({
@@ -42,22 +91,56 @@ export default function DailyCheckin({ onBack }: DailyCheckinProps) {
 
     setFlippingDay(dayIndex)
 
-    const newCheckedDays = [...checkedDays]
-    newCheckedDays[dayIndex] = true
-    setCheckedDays(newCheckedDays)
+    try {
+      const supabase = createBrowserClient()
+      const today = new Date().toISOString().split("T")[0]
 
-    localStorage.setItem("gmpc-checkins", JSON.stringify(newCheckedDays))
-    localStorage.setItem("gmpc-last-check-date", new Date().toDateString())
+      const { error } = await supabase.from("checkins").insert([
+        {
+          player_id: playerId,
+          username: username,
+          check_in_date: today,
+        },
+      ])
 
-    setShowAnimation(true)
-    setTimeout(() => {
-      setShowAnimation(false)
+      if (error) {
+        console.error("Check-in error:", error)
+        alert("Failed to check in. Please try again.")
+        setFlippingDay(null)
+        return
+      }
+
+      const newCheckedDays = [...checkedDays]
+      newCheckedDays[dayIndex] = true
+      setCheckedDays(newCheckedDays)
+
+      setShowAnimation(true)
+      setTimeout(() => {
+        setShowAnimation(false)
+        setFlippingDay(null)
+      }, 3000)
+    } catch (error) {
+      console.error("Check-in error:", error)
+      alert("Failed to check in. Please try again.")
       setFlippingDay(null)
-    }, 3000)
+    }
   }
 
   const completedCount = checkedDays.filter(Boolean).length
   const progressPercentage = (completedCount / DAYS.length) * 100
+
+  if (isLoading) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{
+          background: "linear-gradient(135deg, #6c44fc 0%, #4a2e8f 50%, #2a1a5f 100%)",
+        }}
+      >
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    )
+  }
 
   return (
     <div

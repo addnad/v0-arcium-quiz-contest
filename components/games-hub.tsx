@@ -11,10 +11,9 @@ import KeyCatcher from "./games/key-catcher"
 import PrivacySpellingBee from "./games/privacy-spelling-bee"
 import ThreatDetector from "./games/threat-detector"
 import DataFlow from "./games/data-flow"
-import UsernamePrompt from "./username-prompt"
 import Leaderboard from "./leaderboard"
 import Achievements from "./achievements"
-import { getUserProfile, setUserProfile, initializeAchievements } from "@/lib/game-storage"
+import { initializeAchievements } from "@/lib/game-storage"
 
 type GameView =
   | "menu"
@@ -31,28 +30,15 @@ type GameView =
 
 interface GamesHubProps {
   onBack: () => void
+  username: string
 }
 
-export default function GamesHub({ onBack }: GamesHubProps) {
+export default function GamesHub({ onBack, username }: GamesHubProps) {
   const [currentGame, setCurrentGame] = useState<GameView>("menu")
-  const [userProfile, setUserProfileState] = useState(getUserProfile())
 
   useEffect(() => {
     initializeAchievements()
   }, [])
-
-  const handleUsernameSubmit = (username: string) => {
-    const success = setUserProfile(username)
-    if (success) {
-      setUserProfileState(getUserProfile())
-    } else {
-      alert("Username already taken. Please choose another.")
-    }
-  }
-
-  if (!userProfile) {
-    return <UsernamePrompt onSubmit={handleUsernameSubmit} />
-  }
 
   const handleBackToMenu = () => setCurrentGame("menu")
 
@@ -120,7 +106,7 @@ export default function GamesHub({ onBack }: GamesHubProps) {
             </div>
           </button>
           <div className="text-white/80 text-sm">
-            Welcome, <span className="font-bold text-cyan-300">{userProfile.username}</span>
+            Welcome, <span className="font-bold text-cyan-300">{username}</span>
           </div>
         </div>
 

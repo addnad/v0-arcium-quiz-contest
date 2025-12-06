@@ -10,12 +10,14 @@ import DailyCheckin from "@/components/daily-checkin"
 import FortressStories from "@/components/fortress-stories"
 import GamesHub from "@/components/games-hub" // Imported GamesHub component
 import SocialCardGenerator from "@/components/social-card-generator"
+import UsernameLogin from "@/components/username-login"
 import { getQuestionsBySection, randomizeQuestionOptions, QUIZ_SECTIONS, type Question } from "@/lib/quiz-data"
 import Image from "next/image"
 import { Sparkles } from "lucide-react"
 
 type AppState =
   | "video"
+  | "login"
   | "featureChooser"
   | "gmpcDaily"
   | "fortressStories"
@@ -36,21 +38,31 @@ type CompletedSection = {
 export default function Home() {
   const [appState, setAppState] = useState<AppState>("video")
   const [videoWatched, setVideoWatched] = useState(false)
+  const [username, setUsername] = useState<string>("")
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [sectionQuestions, setSectionQuestions] = useState<Question[]>([])
   const [sectionAnswers, setSectionAnswers] = useState<(number | null)[]>([])
   const [sectionScore, setSectionScore] = useState(0)
   const [completedSections, setCompletedSections] = useState<CompletedSection[]>([])
-  const [showSocialCard, setShowSocialCard] = useState(false)
 
   const currentSection = QUIZ_SECTIONS[currentSectionIndex]
 
-  useEffect(() => {}, [])
+  useEffect(() => {
+    const savedUsername = localStorage.getItem("arcium-username")
+    if (savedUsername) {
+      setUsername(savedUsername)
+    }
+  }, [])
 
   const handleVideoEnd = useCallback(() => {
     setVideoWatched(true)
     localStorage.setItem("arcium-video-watched", "true")
+    setAppState("login")
+  }, [])
+
+  const handleLoginSuccess = useCallback((loggedInUsername: string) => {
+    setUsername(loggedInUsername)
     setAppState("featureChooser")
   }, [])
 
@@ -157,8 +169,12 @@ export default function Home() {
     setAppState("socialCard")
   }, [])
 
+  if (appState === "login") {
+    return <UsernameLogin onLoginSuccess={handleLoginSuccess} />
+  }
+
   if (appState === "socialCard") {
-    return <SocialCardGenerator onBack={() => setAppState("featureChooser")} />
+    return <SocialCardGenerator username={username} onBack={() => setAppState("featureChooser")} />
   }
 
   return (
@@ -241,7 +257,8 @@ export default function Home() {
                     textShadow: "0 0 20px rgba(93, 226, 218, 0.2)",
                   }}
                 >
-                  Welcome to the <span className="text-cyan-300">&lt;encrypted&gt;</span> World
+                  Hey <span className="text-cyan-300 font-bold">{username}</span>, Welcome to the{" "}
+                  <span className="text-cyan-300 font-bold">&lt;encrypted&gt;</span> World
                 </h1>
                 <p className="text-sm md:text-base text-white/70 max-w-3xl mx-auto leading-relaxed">
                   Learn and test your knowledge about Arcium's confidential computing network and ecosystem
@@ -422,7 +439,7 @@ export default function Home() {
         </div>
       )}
 
-      {appState === "games" && <GamesHub onBack={handleBackToFeatures} />}
+      {appState === "games" && <GamesHub onBack={handleBackToFeatures} username={username} />}
 
       {appState === "gmpcDaily" && <DailyCheckin onBack={handleBackToFeatures} />}
 

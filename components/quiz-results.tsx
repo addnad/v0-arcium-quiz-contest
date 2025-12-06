@@ -43,9 +43,7 @@ Test your knowledge about confidential computing, MPC, and encrypted supercomput
 
 Take the quiz: https://stayencrypted.vercel.app/`
 
-    console.log("[v0] Tweet text:", tweetText)
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
-    console.log("[v0] Full Twitter URL:", twitterUrl)
 
     window.open(twitterUrl, "_blank", "noopener,noreferrer")
   }
