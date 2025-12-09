@@ -8,8 +8,8 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Arcium Knowledge Quiz",
-  description: "Test your knowledge about Arcium's confidential computing network",
+  title: "Enter the Fortress | Arcium",
+  description: "Enter the encrypted world of Arcium through games, stories, daily check-ins, and knowledge challenges",
   generator: "v0.app",
   icons: {
     icon: "/images/site-logo.jpeg",
