@@ -92,30 +92,29 @@ export default function DailyCheckin({ onBack, username: propUsername }: DailyCh
 
     console.log("[v0] Attempting check-in insert for username:", username, "date:", today)
 
-    const { data, error } = await supabase
-      .from("checkins")
-      .insert({
-        username,
-        check_in_date: today,
-      })
-      .select()
+    const { data, error } = await supabase.rpc("record_checkin", {
+      p_username: username,
+      p_check_in_date: today,
+    })
 
     if (error) {
-      console.error("[v0] Check-in insert error:", error)
+      console.error("Check-in error:", error.message)
       return
     }
 
-    console.log("[v0] Check-in saved successfully:", data)
+    if (data && data.success) {
+      const newCheckedDays = [...checkedDays]
+      newCheckedDays[currentDayIndex] = true
+      setCheckedDays(newCheckedDays)
+      setHasCheckedToday(true)
 
-    const newCheckedDays = [...checkedDays]
-    newCheckedDays[currentDayIndex] = true
-    setCheckedDays(newCheckedDays)
-    setHasCheckedToday(true)
-
-    setShowAnimation(true)
-    setTimeout(() => {
-      setShowAnimation(false)
-    }, 3000)
+      setShowAnimation(true)
+      setTimeout(() => {
+        setShowAnimation(false)
+      }, 3000)
+    } else {
+      console.log("Check-in response:", data?.message)
+    }
   }
 
   if (loading) {

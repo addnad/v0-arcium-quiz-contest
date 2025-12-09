@@ -46,38 +46,35 @@ export async function createPlayer(username: string): Promise<{ id: string } | n
 export async function getOrCreatePlayer(username: string): Promise<string | null> {
   const supabase = createClient()
 
-  // Try to get existing player
-  const { data: existingPlayer } = await supabase.from("players").select("id").eq("username", username).maybeSingle()
+  const { data, error } = await supabase.rpc("get_or_create_player", {
+    p_username: username,
+  })
 
-  if (existingPlayer) {
-    return existingPlayer.id
+  if (error) {
+    console.error("[v0] Error getting or creating player:", error)
+    return null
   }
 
-  // Create new player
-  const newPlayer = await createPlayer(username)
-  return newPlayer?.id || null
+  return data
 }
 
 // Submit a score
 export async function submitScore(username: string, gameName: string, score: number): Promise<boolean> {
-  const playerId = await getOrCreatePlayer(username)
-
-  if (!playerId) {
-    console.error("[v0] Failed to get or create player")
-    return false
-  }
-
   const supabase = createClient()
 
-  const { error } = await supabase.from("game_scores").insert({
-    player_id: playerId,
-    username,
-    game_name: gameName,
-    score,
+  const { data, error } = await supabase.rpc("submit_game_score", {
+    p_username: username,
+    p_game_name: gameName,
+    p_score: score,
   })
 
   if (error) {
     console.error("[v0] Error submitting score:", error)
+    return false
+  }
+
+  if (!data?.success) {
+    console.error("[v0] Score submission failed:", data?.error)
     return false
   }
 
