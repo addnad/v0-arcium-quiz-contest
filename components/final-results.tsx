@@ -39,7 +39,7 @@ export default function FinalResults({ sections, completedSections, onRetakeQuiz
   }
 
   const handleShareToTwitter = () => {
-    const tweetText = `Just crushed the Arcium Knowledge Quiz! 🔐🚀\n\nScored ${totalScore}/${totalQuestions} (${percentage}%) on confidential computing, MPC, and encrypted applications.\n\nReady to test your crypto knowledge? Learn about the encrypted future with @1st_bernice\n\n#Arcium #ConfidentialComputing #Web3`
+    const tweetText = `Just crushed the Arcium Knowledge Quiz! 🔐🚀\n\nScored ${totalScore}/${totalQuestions} (${percentage}%) on confidential computing, MPC, and encrypted applications.\n\nReady to test your arcium knowledge? Learn about the encrypted future with @1st_bernice here -- https://stayencrypted.vercel.app/\n\n#Arcium #ConfidentialComputing #Web3`
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
     window.open(twitterUrl, "_blank", "noopener,noreferrer")
   }

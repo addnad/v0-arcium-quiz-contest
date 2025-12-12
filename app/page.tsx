@@ -10,14 +10,14 @@ import DailyCheckin from "@/components/daily-checkin"
 import FortressStories from "@/components/fortress-stories"
 import GamesHub from "@/components/games-hub" // Imported GamesHub component
 import SocialCardGenerator from "@/components/social-card-generator"
-import UsernamePrompt from "@/components/username-prompt"
+import { AuthForm } from "@/components/auth-form"
 import { getQuestionsBySection, randomizeQuestionOptions, QUIZ_SECTIONS, type Question } from "@/lib/quiz-data"
 import Image from "next/image"
 import { Sparkles } from "lucide-react"
 
 type AppState =
   | "video"
-  | "usernameEntry"
+  | "auth"
   | "featureChooser"
   | "gmpcDaily"
   | "fortressStories"
@@ -50,26 +50,36 @@ export default function Home() {
   const currentSection = QUIZ_SECTIONS[currentSectionIndex]
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem("arcium-username")
-    if (storedUsername) {
-      setUsername(storedUsername)
-      const videoWatched = localStorage.getItem("arcium-video-watched")
-      if (videoWatched) {
-        setAppState("featureChooser")
+    const authSession = localStorage.getItem("fortress-auth")
+    if (authSession) {
+      try {
+        const session = JSON.parse(authSession)
+        const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000
+        if (Date.now() - session.timestamp < thirtyDaysInMs) {
+          setUsername(session.username)
+          const videoWatched = localStorage.getItem("arcium-video-watched")
+          if (videoWatched) {
+            setAppState("featureChooser")
+          }
+        } else {
+          localStorage.removeItem("fortress-auth")
+        }
+      } catch (e) {
+        localStorage.removeItem("fortress-auth")
       }
     }
   }, [])
 
-  const handleUsernameSubmit = useCallback((submittedUsername: string) => {
-    setUsername(submittedUsername)
-    localStorage.setItem("arcium-username", submittedUsername)
+  const handleAuthSuccess = useCallback((authenticatedUsername: string) => {
+    setUsername(authenticatedUsername)
+    localStorage.setItem("arcium-username", authenticatedUsername)
     setAppState("featureChooser")
   }, [])
 
   const handleVideoEnd = useCallback(() => {
     setVideoWatched(true)
     localStorage.setItem("arcium-video-watched", "true")
-    setAppState("usernameEntry")
+    setAppState("auth")
   }, [])
 
   const handleGMPCDaily = useCallback(() => {
@@ -175,8 +185,8 @@ export default function Home() {
     setAppState("socialCard")
   }, [])
 
-  if (appState === "usernameEntry") {
-    return <UsernamePrompt onSubmit={handleUsernameSubmit} />
+  if (appState === "auth") {
+    return <AuthForm onSuccess={handleAuthSuccess} />
   }
 
   if (appState === "socialCard") {
