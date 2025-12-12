@@ -8,9 +8,11 @@ import SectionResults from "@/components/section-results"
 import FinalResults from "@/components/final-results"
 import DailyCheckin from "@/components/daily-checkin"
 import FortressStories from "@/components/fortress-stories"
-import GamesHub from "@/components/games-hub" // Imported GamesHub component
+import GamesHub from "@/components/games-hub"
 import SocialCardGenerator from "@/components/social-card-generator"
 import { AuthForm } from "@/components/auth-form"
+import StreakDisplay from "@/components/streak-display"
+import CommunityStories from "@/components/community-stories"
 import { getQuestionsBySection, randomizeQuestionOptions, QUIZ_SECTIONS, type Question } from "@/lib/quiz-data"
 import Image from "next/image"
 import { Sparkles } from "lucide-react"
@@ -28,6 +30,7 @@ type AppState =
   | "sectionResults"
   | "finalResults"
   | "socialCard"
+  | "communityStories"
 
 type CompletedSection = {
   sectionId: string
@@ -185,12 +188,20 @@ export default function Home() {
     setAppState("socialCard")
   }, [])
 
+  const handleCommunityStories = useCallback(() => {
+    setAppState("communityStories")
+  }, [])
+
   if (appState === "auth") {
     return <AuthForm onSuccess={handleAuthSuccess} />
   }
 
   if (appState === "socialCard") {
     return <SocialCardGenerator onBack={() => setAppState("featureChooser")} />
+  }
+
+  if (appState === "communityStories") {
+    return <CommunityStories username={username} onBack={() => setAppState("featureChooser")} />
   }
 
   return (
@@ -244,6 +255,8 @@ export default function Home() {
             background: "linear-gradient(135deg, #6c44fc 0%, #4a2e8f 50%, #2a1a5f 100%)",
           }}
         >
+          {username && <StreakDisplay username={username} />}
+
           <div className="w-full max-w-5xl">
             <div className="flex flex-col items-center gap-12 mb-12">
               <div className="flex items-center gap-6 bg-gradient-to-r from-purple-600/20 to-blue-600/20 backdrop-blur-xl border border-white/20 rounded-3xl px-8 md:px-12 py-5 md:py-6 shadow-2xl">
@@ -322,7 +335,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 lg:gap-8">
               <button
                 onClick={handleGMPCDaily}
                 className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-cyan-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
@@ -445,6 +458,32 @@ export default function Home() {
                   <div className="pt-2 lg:pt-4">
                     <span className="inline-flex items-center gap-2 text-pink-300 font-semibold text-sm group-hover:gap-3 transition-all">
                       Create Card
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={handleCommunityStories}
+                className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-yellow-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/0 to-yellow-400/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative text-center space-y-4 lg:space-y-6">
+                  <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto bg-gradient-to-br from-yellow-400 via-orange-400 to-red-400 rounded-2xl flex items-center justify-center text-3xl lg:text-4xl shadow-lg group-hover:shadow-yellow-400/50 transition-shadow">
+                    ✍️
+                  </div>
+                  <div>
+                    <h3 className="text-xl lg:text-2xl font-bold text-white mb-2">Community Stories</h3>
+                    <p className="text-white/60 text-xs lg:text-sm leading-relaxed">
+                      Share your fortress stories and vote on community submissions
+                    </p>
+                  </div>
+                  <div className="pt-2 lg:pt-4">
+                    <span className="inline-flex items-center gap-2 text-yellow-300 font-semibold text-sm group-hover:gap-3 transition-all">
+                      Share Stories
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
