@@ -107,21 +107,10 @@ export function ArciumFactCards({ onBack }: ArciumFactCardsProps) {
         {/* Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {factCards.map((fact, index) => (
-            <div key={index} className="perspective-1000" onClick={() => toggleCard(index)}>
-              <div
-                className={`relative w-full h-64 transition-transform duration-500 transform-style-3d cursor-pointer ${
-                  flippedCard === index ? "rotate-y-180" : ""
-                }`}
-                style={{
-                  transformStyle: "preserve-3d",
-                  transform: flippedCard === index ? "rotateY(180deg)" : "rotateY(0deg)",
-                }}
-              >
+            <div key={index} className="card-container" onClick={() => toggleCard(index)}>
+              <div className={`card-inner ${flippedCard === index ? "flipped" : ""}`}>
                 {/* Front of Card */}
-                <div
-                  className="absolute w-full h-full backface-hidden rounded-2xl flex items-center justify-center p-6 shadow-xl border border-white/20 overflow-hidden"
-                  style={{ backfaceVisibility: "hidden" }}
-                >
+                <div className="card-face card-front">
                   <Image
                     src="/images/jpeg-20image-4a18-8462-04-0.jpeg"
                     alt="Arcium Booth Background"
@@ -137,13 +126,7 @@ export function ArciumFactCards({ onBack }: ArciumFactCardsProps) {
                 </div>
 
                 {/* Back of Card */}
-                <div
-                  className="absolute w-full h-full backface-hidden bg-gradient-to-br from-cyan-600 to-purple-700 rounded-2xl flex items-center justify-center p-6 shadow-xl border border-white/20"
-                  style={{
-                    backfaceVisibility: "hidden",
-                    transform: "rotateY(180deg)",
-                  }}
-                >
+                <div className="card-face card-back">
                   <p className="text-white text-center text-base md:text-lg leading-relaxed font-medium">{fact}</p>
                 </div>
               </div>
@@ -160,16 +143,47 @@ export function ArciumFactCards({ onBack }: ArciumFactCardsProps) {
       </div>
 
       <style jsx>{`
-        .perspective-1000 {
+        .card-container {
           perspective: 1000px;
+          width: 100%;
+          height: 16rem;
+          cursor: pointer;
         }
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        .transform-style-3d {
+        
+        .card-inner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          transition: transform 0.6s;
           transform-style: preserve-3d;
         }
-        .rotate-y-180 {
+        
+        .card-inner.flipped {
+          transform: rotateY(180deg);
+        }
+        
+        .card-face {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          border-radius: 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1.5rem;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          overflow: hidden;
+        }
+        
+        .card-front {
+          background: transparent;
+        }
+        
+        .card-back {
+          background: linear-gradient(135deg, #0891b2 0%, #7c3aed 100%);
           transform: rotateY(180deg);
         }
       `}</style>
