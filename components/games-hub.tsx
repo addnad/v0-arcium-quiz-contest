@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Wallet, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import QuickFireMPC from "./games/quick-fire-mpc"
 import FortressVault from "./games/fortress-vault"
@@ -11,12 +11,13 @@ import KeyCatcher from "./games/key-catcher"
 import PrivacySpellingBee from "./games/privacy-spelling-bee"
 import ThreatDetector from "./games/threat-detector"
 import DataFlow from "./games/data-flow"
-import UsernamePrompt from "./username-prompt"
+import WalletConnector from "./wallet-connector"
 import Leaderboard from "./leaderboard"
 import Achievements from "./achievements"
-import { getUserProfile, setUserProfile, initializeAchievements } from "@/lib/game-storage"
+import { initializeAchievements } from "@/lib/game-storage"
 
 type GameView =
+  | "walletConnect"
   | "menu"
   | "quickfire"
   | "fortress"
@@ -31,30 +32,47 @@ type GameView =
 
 interface GamesHubProps {
   onBack: () => void
+  username: string
 }
 
-export default function GamesHub({ onBack }: GamesHubProps) {
+export default function GamesHub({ onBack, username }: GamesHubProps) {
   const [currentGame, setCurrentGame] = useState<GameView>("menu")
-  const [userProfile, setUserProfileState] = useState(getUserProfile())
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
+  const [showWalletHover, setShowWalletHover] = useState(false)
 
   useEffect(() => {
     initializeAchievements()
-  }, [])
 
-  const handleUsernameSubmit = (username: string) => {
-    const success = setUserProfile(username)
-    if (success) {
-      setUserProfileState(getUserProfile())
-    } else {
-      alert("Username already taken. Please choose another.")
+    const storedWallet = localStorage.getItem("arcium-wallet")
+    if (storedWallet) {
+      try {
+        const wallet = JSON.parse(storedWallet)
+        if (wallet.username === username) {
+          setWalletAddress(wallet.address)
+        }
+      } catch (e) {
+        console.error("Error parsing stored wallet", e)
+      }
     }
-  }
+  }, [username])
 
-  if (!userProfile) {
-    return <UsernamePrompt onSubmit={handleUsernameSubmit} />
+  const handleDisconnectWallet = () => {
+    localStorage.removeItem("arcium-wallet")
+    setWalletAddress(null)
   }
 
   const handleBackToMenu = () => setCurrentGame("menu")
+
+  const handleWalletConnected = (address: string) => {
+    setWalletAddress(address)
+    setCurrentGame("menu")
+  }
+
+  if (currentGame === "walletConnect") {
+    return (
+      <WalletConnector username={username} onConnected={handleWalletConnected} onSkip={() => setCurrentGame("menu")} />
+    )
+  }
 
   if (currentGame === "quickfire") {
     return <QuickFireMPC onBack={handleBackToMenu} />
@@ -119,8 +137,40 @@ export default function GamesHub({ onBack }: GamesHubProps) {
               </span>
             </div>
           </button>
-          <div className="text-white/80 text-sm">
-            Welcome, <span className="font-bold text-cyan-300">{userProfile.username}</span>
+          <div className="text-white/80 text-sm flex items-center gap-2">
+            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+            <span className="font-bold text-cyan-300">{username}</span>
+            {walletAddress ? (
+              <div
+                className="relative"
+                onMouseEnter={() => setShowWalletHover(true)}
+                onMouseLeave={() => setShowWalletHover(false)}
+              >
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-400/10 border border-green-400/30 rounded-lg cursor-pointer hover:bg-green-400/20 transition-all">
+                  <Wallet className="w-3.5 h-3.5 text-green-400" />
+                  <span className="text-xs text-green-400 font-mono">
+                    {walletAddress.slice(0, 4)}...{walletAddress.slice(-4)}
+                  </span>
+                </div>
+                {showWalletHover && (
+                  <button
+                    onClick={handleDisconnectWallet}
+                    className="absolute top-full mt-1 right-0 px-3 py-1.5 bg-red-500/90 hover:bg-red-600 text-white text-xs rounded-lg flex items-center gap-1.5 shadow-lg backdrop-blur-sm z-10 transition-all"
+                  >
+                    <X className="w-3 h-3" />
+                    Disconnect Wallet
+                  </button>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => setCurrentGame("walletConnect")}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-400/10 border border-purple-400/30 rounded-lg hover:bg-purple-400/20 transition-all text-purple-300 text-xs"
+              >
+                <Wallet className="w-3.5 h-3.5" />
+                Connect Wallet (Optional)
+              </button>
+            )}
           </div>
         </div>
 

@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import WalletContextProvider from "@/lib/wallet-provider"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -10,11 +11,11 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Enter the Fortress | Arcium",
   description: "Enter the encrypted world of Arcium through games, stories, daily check-ins, and knowledge challenges",
-  generator: "v0.app",
   icons: {
     icon: "/images/site-logo.jpeg",
     apple: "/images/site-logo.jpeg",
   },
+    generator: 'v0.app'
 }
 
 export default function RootLayout({
@@ -25,8 +26,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`font-sans antialiased`}>
-        {children}
-        <Analytics />
+        <WalletContextProvider>
+          {children}
+          <Analytics />
+        </WalletContextProvider>
       </body>
     </html>
   )

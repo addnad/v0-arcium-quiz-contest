@@ -5,6 +5,7 @@ import { ArrowLeft, CheckCircle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { addScore } from "@/lib/game-storage"
+import { SubmitScoreModal } from "@/components/submit-score-modal"
 
 interface Word {
   word: string
@@ -72,6 +73,7 @@ export default function PrivacySpellingBee({ onBack }: PrivacySpellingBeeProps) 
   const [showResult, setShowResult] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
   const [completed, setCompleted] = useState(false)
+  const [showSubmitModal, setShowSubmitModal] = useState(false)
 
   const difficultyMultiplier = difficulty === "easy" ? 1 : difficulty === "medium" ? 1.5 : 2
 
@@ -184,6 +186,17 @@ export default function PrivacySpellingBee({ onBack }: PrivacySpellingBeeProps) 
           </div>
         </div>
       </div>
+    )
+  }
+
+  if (completed && !showSubmitModal) {
+    return (
+      <SubmitScoreModal
+        score={score}
+        gameName="Privacy Spelling Bee"
+        onSubmitted={() => setShowSubmitModal(true)}
+        onSkip={() => setShowSubmitModal(true)}
+      />
     )
   }
 

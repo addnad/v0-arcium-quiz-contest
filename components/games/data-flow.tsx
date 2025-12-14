@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { addScore } from "@/lib/game-storage"
+import { SubmitScoreModal } from "@/components/submit-score-modal"
 
 interface FlowStep {
   id: string
@@ -23,6 +24,7 @@ export default function DataFlow({ onBack }: DataFlowProps) {
   const [gameState, setGameState] = useState<"playing" | "complete" | "failed">("playing")
   const [feedback, setFeedback] = useState("")
   const [timeLeft, setTimeLeft] = useState(30)
+  const [showSubmitModal, setShowSubmitModal] = useState(false)
 
   const allSteps: FlowStep[] = [
     { id: "input", name: "Data Input", icon: "📊", description: "Raw encrypted data" },
@@ -106,7 +108,18 @@ export default function DataFlow({ onBack }: DataFlowProps) {
     initializeLevel(1)
   }
 
-  if (gameState === "complete" || gameState === "failed") {
+  if ((gameState === "complete" || gameState === "failed") && !showSubmitModal) {
+    return (
+      <SubmitScoreModal
+        score={score}
+        gameName="Data Flow"
+        onSubmitted={() => setShowSubmitModal(true)}
+        onSkip={() => setShowSubmitModal(true)}
+      />
+    )
+  }
+
+  if (showSubmitModal) {
     return (
       <div
         className="min-h-screen flex items-center justify-center px-4"

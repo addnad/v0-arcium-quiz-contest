@@ -85,20 +85,41 @@ export async function submitScore(username: string, gameName: string, score: num
 export async function getGameLeaderboard(gameName: string, limit = 10): Promise<LeaderboardEntry[]> {
   const supabase = createClient()
 
+  // Get all scores for this game
   const { data, error } = await supabase
     .from("game_scores")
     .select("id, username, score, played_at")
     .eq("game_name", gameName)
     .order("score", { ascending: false })
     .order("played_at", { ascending: true })
-    .limit(limit)
 
   if (error) {
     console.error("[v0] Error fetching game leaderboard:", error)
     return []
   }
 
-  return data || []
+  if (!data) return []
+
+  // Group by username and keep only the best score for each player
+  const bestScores = new Map<string, LeaderboardEntry>()
+
+  data.forEach((entry) => {
+    const existing = bestScores.get(entry.username)
+    if (!existing || entry.score > existing.score) {
+      bestScores.set(entry.username, entry)
+    }
+  })
+
+  // Convert to array, sort by score, and limit
+  return Array.from(bestScores.values())
+    .sort((a, b) => {
+      if (b.score !== a.score) {
+        return b.score - a.score
+      }
+      // If scores are equal, earlier timestamp wins
+      return new Date(a.played_at).getTime() - new Date(b.played_at).getTime()
+    })
+    .slice(0, limit)
 }
 
 // Get overall leaderboard (combined scores)

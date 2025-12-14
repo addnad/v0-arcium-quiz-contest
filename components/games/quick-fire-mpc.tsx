@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { ArrowLeft, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { SubmitScoreModal } from "@/components/submit-score-modal"
 
 interface QuickFireMPCProps {
   onBack: () => void
@@ -65,6 +66,86 @@ const QUESTIONS: Question[] = [
     options: ["A mobile app", "Distributed execution engine", "A smart contract", "A wallet"],
     correct: 1,
   },
+  {
+    question: "What does DeCC stand for?",
+    options: [
+      "Decentralized Computing Center",
+      "Decentralized Confidential Computing",
+      "Data Encryption and Cryptography Center",
+      "Digital Exchange Compliance Committee",
+    ],
+    correct: 1,
+  },
+  {
+    question: "What is C-SPL?",
+    options: [
+      "Confidential SPL Token Standard",
+      "Crypto Standard Protocol Layer",
+      "Confidential Smart Protocol Logic",
+      "Chain Security Platform Layer",
+    ],
+    correct: 2,
+  },
+  {
+    question: "What is the Arcis framework built with?",
+    options: ["JavaScript", "Python", "Rust", "Go"],
+    correct: 2,
+  },
+  {
+    question: "What does RTG stand for in Arcium?",
+    options: [
+      "Real-Time Gaming",
+      "Retroactive Token Grants",
+      "Recursive Token Generation",
+      "Random Transaction Generator",
+    ],
+    correct: 1,
+  },
+  {
+    question: "What is Arcium's Encrypted Credit system for?",
+    options: ["Lending protocol", "Tracking contributions", "NFT marketplace", "Payment processing"],
+    correct: 1,
+  },
+  {
+    question: "What type of environment does Arcium use for confidential computing?",
+    options: ["Virtual machines", "Docker containers", "MPC nodes", "Cloud servers"],
+    correct: 2,
+  },
+  {
+    question: "What does TEE stand for?",
+    options: [
+      "Total Encryption Engine",
+      "Trusted Execution Environment",
+      "Token Exchange Ecosystem",
+      "Transfer Encryption Extension",
+    ],
+    correct: 1,
+  },
+  {
+    question: "What is the main benefit of Arcium's confidential computing?",
+    options: ["Faster transactions", "Lower gas fees", "Privacy-preserving computation", "Better UI/UX"],
+    correct: 2,
+  },
+  {
+    question: "What does ZKP stand for?",
+    options: ["Zero Knowledge Proof", "Zone Key Protocol", "Zeta Key Pairing", "Zero Kill Protection"],
+    correct: 0,
+  },
+  {
+    question: "Which feature allows Arcium to process encrypted data?",
+    options: ["Smart contracts", "Multi-Party Computation", "Layer 2 scaling", "Sharding"],
+    correct: 1,
+  },
+  {
+    question: "What is Arcium's native blockchain?",
+    options: ["Ethereum", "Solana", "Polygon", "Binance Smart Chain"],
+    correct: 1,
+  },
+  {
+    question: "What does homomorphic encryption allow?",
+    options: ["Faster hashing", "Computation on encrypted data", "Cheaper transactions", "Better compression"],
+    correct: 1,
+  },
 ]
 
 export default function QuickFireMPC({ onBack }: QuickFireMPCProps) {
@@ -75,12 +156,20 @@ export default function QuickFireMPC({ onBack }: QuickFireMPCProps) {
   const [showResult, setShowResult] = useState(false)
   const [gameComplete, setGameComplete] = useState(false)
   const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([])
+  const [showSubmitModal, setShowSubmitModal] = useState(false)
 
   useEffect(() => {
-    setShuffledQuestions([...QUESTIONS].sort(() => Math.random() - 0.5))
+    const shuffled = [...QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 15)
+    setShuffledQuestions(shuffled)
   }, [])
 
   const question = shuffledQuestions[currentQuestion]
+
+  const shuffledOptions = useMemo(() => {
+    if (!question) return []
+    const options = question.options.map((opt, idx) => ({ text: opt, originalIndex: idx }))
+    return options.sort(() => Math.random() - 0.5)
+  }, [question])
 
   useEffect(() => {
     if (showResult || gameComplete) return
@@ -103,6 +192,7 @@ export default function QuickFireMPC({ onBack }: QuickFireMPCProps) {
     setTimeout(() => {
       if (currentQuestion + 1 >= shuffledQuestions.length) {
         setGameComplete(true)
+        addScore(score, "quickfirempc")
       } else {
         setCurrentQuestion((prev) => prev + 1)
         setSelectedAnswer(null)
@@ -112,18 +202,19 @@ export default function QuickFireMPC({ onBack }: QuickFireMPCProps) {
     }, 1500)
   }
 
-  const handleAnswer = (index: number) => {
+  const handleAnswer = (optionItem: { text: string; originalIndex: number }) => {
     if (showResult) return
-    setSelectedAnswer(index)
+    setSelectedAnswer(optionItem.originalIndex)
     setShowResult(true)
 
-    if (index === question.correct) {
+    if (optionItem.originalIndex === question.correct) {
       setScore((prev) => prev + timeLeft * 10)
     }
 
     setTimeout(() => {
       if (currentQuestion + 1 >= shuffledQuestions.length) {
         setGameComplete(true)
+        addScore(score + (optionItem.originalIndex === question.correct ? timeLeft * 10 : 0), "quickfirempc")
       } else {
         setCurrentQuestion((prev) => prev + 1)
         setSelectedAnswer(null)
@@ -140,10 +231,23 @@ export default function QuickFireMPC({ onBack }: QuickFireMPCProps) {
     setSelectedAnswer(null)
     setShowResult(false)
     setGameComplete(false)
-    setShuffledQuestions([...QUESTIONS].sort(() => Math.random() - 0.5))
+    setShowSubmitModal(false)
+    const shuffled = [...QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 15)
+    setShuffledQuestions(shuffled)
   }
 
   if (shuffledQuestions.length === 0) return null
+
+  if (gameComplete && !showSubmitModal) {
+    return (
+      <SubmitScoreModal
+        score={score}
+        gameName="Quick Fire MPC"
+        onSubmitted={() => setShowSubmitModal(true)}
+        onSkip={() => setShowSubmitModal(true)}
+      />
+    )
+  }
 
   if (gameComplete) {
     return (
@@ -221,16 +325,16 @@ export default function QuickFireMPC({ onBack }: QuickFireMPCProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {question.options.map((option, index) => {
-                const isSelected = selectedAnswer === index
-                const isCorrect = index === question.correct
+              {shuffledOptions.map((optionItem, index) => {
+                const isSelected = selectedAnswer === optionItem.originalIndex
+                const isCorrect = optionItem.originalIndex === question.correct
                 const showCorrect = showResult && isCorrect
                 const showWrong = showResult && isSelected && !isCorrect
 
                 return (
                   <button
                     key={index}
-                    onClick={() => handleAnswer(index)}
+                    onClick={() => handleAnswer(optionItem)}
                     disabled={showResult}
                     className={`p-6 rounded-xl border-2 font-semibold text-lg transition-all ${
                       showCorrect
@@ -241,7 +345,7 @@ export default function QuickFireMPC({ onBack }: QuickFireMPCProps) {
                     } disabled:cursor-not-allowed`}
                   >
                     <div className="flex items-center justify-between">
-                      <span>{option}</span>
+                      <span>{optionItem.text}</span>
                       {showCorrect && <Check className="w-6 h-6" />}
                       {showWrong && <X className="w-6 h-6" />}
                     </div>
@@ -254,4 +358,9 @@ export default function QuickFireMPC({ onBack }: QuickFireMPCProps) {
       </div>
     </div>
   )
+}
+
+function addScore(score: number, gameName: string) {
+  // Placeholder function to simulate score submission
+  console.log(`Submitting score ${score} for game ${gameName}`)
 }

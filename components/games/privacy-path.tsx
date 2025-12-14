@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { ArrowLeft, Flag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { addScore, unlockAchievement } from "@/lib/game-storage"
+import { SubmitScoreModal } from "@/components/submit-score-modal"
 
 interface PrivacyPathProps {
   onBack: () => void
@@ -19,6 +20,7 @@ export default function PrivacyPath({ onBack }: PrivacyPathProps) {
   const [gameOver, setGameOver] = useState(false)
   const [grid, setGrid] = useState<Cell[][]>([])
   const [playerPos, setPlayerPos] = useState({ x: 0, y: 0 })
+  const [showSubmitModal, setShowSubmitModal] = useState(false)
 
   useEffect(() => {
     if (difficulty) {
@@ -73,8 +75,6 @@ export default function PrivacyPath({ onBack }: PrivacyPathProps) {
         setTimeout(() => setLevel(level + 1), 1000)
       } else {
         setGameOver(true)
-        addScore(score + Math.max(levelScore, 100), "privacypath")
-        unlockAchievement("first_game")
       }
     }
   }
@@ -85,6 +85,7 @@ export default function PrivacyPath({ onBack }: PrivacyPathProps) {
     setScore(0)
     setMoves(0)
     setGameOver(false)
+    setShowSubmitModal(false)
   }
 
   if (!difficulty) {
@@ -124,6 +125,24 @@ export default function PrivacyPath({ onBack }: PrivacyPathProps) {
           </Button>
         </div>
       </div>
+    )
+  }
+
+  if (gameOver && !showSubmitModal) {
+    return (
+      <SubmitScoreModal
+        score={score}
+        gameName="Privacy Path"
+        onSubmitted={() => {
+          setShowSubmitModal(true)
+          addScore(score, "privacypath")
+          unlockAchievement("first_game")
+        }}
+        onSkip={() => {
+          setShowSubmitModal(true)
+          addScore(score, "privacypath")
+        }}
+      />
     )
   }
 

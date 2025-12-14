@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { ArrowLeft, Shield, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { addScore, unlockAchievement } from "@/lib/game-storage"
+import { SubmitScoreModal } from "@/components/submit-score-modal"
 
 interface DataDefenderProps {
   onBack: () => void
@@ -98,6 +99,7 @@ export default function DataDefender({ onBack }: DataDefenderProps) {
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null)
   const [shuffledThreats, setShuffledThreats] = useState<Threat[]>([])
   const [shuffledProtocols, setShuffledProtocols] = useState<string[]>([])
+  const [showSubmitModal, setShowSubmitModal] = useState(false)
 
   useEffect(() => {
     if (difficulty) {
@@ -145,6 +147,7 @@ export default function DataDefender({ onBack }: DataDefenderProps) {
     setScore(0)
     setGameOver(false)
     setFeedback(null)
+    setShowSubmitModal(false)
   }
 
   if (!difficulty) {
@@ -189,7 +192,18 @@ export default function DataDefender({ onBack }: DataDefenderProps) {
 
   if (shuffledThreats.length === 0) return null
 
-  if (gameOver) {
+  if (gameOver && !showSubmitModal) {
+    return (
+      <SubmitScoreModal
+        score={score}
+        gameName="Data Defender"
+        onSubmitted={() => setShowSubmitModal(true)}
+        onSkip={() => setShowSubmitModal(true)}
+      />
+    )
+  }
+
+  if (showSubmitModal) {
     return (
       <div
         className="min-h-screen flex items-center justify-center px-4"

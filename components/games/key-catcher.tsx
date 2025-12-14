@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react" // Fixed import to use lucide-react
 import { addScore } from "@/lib/game-storage"
+import SubmitScoreModal from "@/components/submit-score-modal"
+import { useWallet } from "@solana/wallet-adapter-react"
 
 interface FallingItem {
   id: number
@@ -24,6 +27,9 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
   const [gameOver, setGameOver] = useState(false)
   const [elapsedTime, setElapsedTime] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const [showSubmitModal, setShowSubmitModal] = useState(false)
+  const [username, setUsername] = useState("")
+  const { publicKey } = useWallet()
   const nextIdRef = useRef(0)
   const spawnIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -40,6 +46,14 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
     checkMobile()
     window.addEventListener("resize", checkMobile)
     return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+
+  useEffect(() => {
+    const profile = localStorage.getItem("arcium_user_profile")
+    if (profile) {
+      const parsed = JSON.parse(profile)
+      setUsername(parsed.username || "Player")
+    }
   }, [])
 
   const spawnItem = useCallback(() => {
@@ -151,6 +165,25 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
     setGameActive(false)
     setGameOver(true)
     addScore(score, "keycatcher")
+    setShowSubmitModal(true)
+  }
+
+  const handleSubmitComplete = () => {
+    console.log("[v0] handleSubmitComplete called")
+    setShowSubmitModal(false)
+    // Modal closed, game over screen will now display with working Back to Games button
+  }
+
+  if (showSubmitModal) {
+    console.log("[v0] Rendering submit modal, handleSubmitComplete:", typeof handleSubmitComplete)
+    return (
+      <SubmitScoreModal
+        gameName="Key Catcher"
+        score={score}
+        onSubmitted={handleSubmitComplete}
+        onSkip={handleSubmitComplete}
+      />
+    )
   }
 
   if (gameOver) {
@@ -172,7 +205,14 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
             >
               Play Again
             </Button>
-            <Button onClick={onBack} variant="outline" className="w-full bg-transparent">
+            <Button
+              onClick={() => {
+                console.log("[v0] Back to Games clicked from game over screen, calling onBack")
+                onBack()
+              }}
+              variant="outline"
+              className="w-full bg-transparent"
+            >
               Back to Games
             </Button>
           </div>
@@ -213,10 +253,25 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
       style={{ background: "linear-gradient(135deg, #6c44fc 0%, #4a2e8f 50%, #2a1a5f 100%)" }}
     >
       <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-4">
-          <div className="text-white text-2xl font-bold">Score: {score}</div>
-          <div className="text-white/70 text-lg">
-            Time: {elapsedTime}s {elapsedTime > 30 && <span className="text-red-400 font-bold ml-2">FAST MODE!</span>}
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={onBack}
+            className="group relative overflow-hidden px-4 py-2 rounded-xl transition-all hover:scale-105"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-purple-400/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"></div>
+            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative flex items-center gap-2 text-white/80 group-hover:text-white transition-colors text-sm">
+              <ArrowLeft className="w-4 h-4" />
+              <span>
+                Back to <span className="text-cyan-300 font-semibold">{"<encrypted>"}</span> World
+              </span>
+            </div>
+          </button>
+          <div className="flex gap-4 items-center">
+            <div className="text-white text-2xl font-bold">Score: {score}</div>
+            <div className="text-white/70 text-lg">
+              Time: {elapsedTime}s {elapsedTime > 30 && <span className="text-red-400 font-bold ml-2">FAST MODE!</span>}
+            </div>
           </div>
           <Button onClick={endGame} variant="ghost" className="text-white hover:bg-white/10">
             End Game

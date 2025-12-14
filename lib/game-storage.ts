@@ -80,13 +80,43 @@ export function initializeAchievements(): void {
   const defaultAchievements: Achievement[] = [
     { id: "first_game", name: "First Steps", description: "Complete your first game", icon: "🎮" },
     { id: "quiz_master", name: "Quiz Master", description: "Score 100% on the Knowledge Quiz", icon: "🏆" },
-    { id: "cipher_expert", name: "Cipher Expert", description: "Complete 5 Cipher Challenges", icon: "🔐" },
-    { id: "speed_demon", name: "Speed Demon", description: "Score 800+ in Quick Fire MPC", icon: "⚡" },
+    { id: "key_catcher_pro", name: "Key Catcher Pro", description: "Score 1000+ in Key Catcher", icon: "🔑" },
     {
-      id: "memory_champion",
-      name: "Memory Champion",
-      description: "Complete Fortress Vault in under 30 seconds",
+      id: "threat_detector_ace",
+      name: "Threat Detector Ace",
+      description: "Detect all threats in Threat Detector",
+      icon: "🔍",
+    },
+    {
+      id: "privacy_path_master",
+      name: "Privacy Path Master",
+      description: "Complete Privacy Path perfectly",
+      icon: "🗺️",
+    },
+    {
+      id: "data_defender_hero",
+      name: "Data Defender Hero",
+      description: "Achieve perfect score in Data Defender",
+      icon: "🛡️",
+    },
+    {
+      id: "spelling_bee_expert",
+      name: "Spelling Bee Expert",
+      description: "Perfect score in Privacy Spelling Bee",
+      icon: "🐝",
+    },
+    { id: "quick_fire_champion", name: "Quick Fire Champion", description: "Score 800+ in Quick Fire MPC", icon: "⚡" },
+    {
+      id: "fortress_vault_master",
+      name: "Fortress Vault Master",
+      description: "Complete Fortress Vault perfectly",
       icon: "🎯",
+    },
+    {
+      id: "data_flow_genius",
+      name: "Data Flow Genius",
+      description: "Complete Data Flow with perfect sequence",
+      icon: "🌊",
     },
     {
       id: "daily_dedication",
@@ -95,6 +125,7 @@ export function initializeAchievements(): void {
       icon: "📅",
     },
     { id: "fortress_explorer", name: "Fortress Explorer", description: "Read all 5 Fortress Stories", icon: "🏰" },
+    { id: "community_contributor", name: "Community Contributor", description: "Submit a fortress story", icon: "✍️" },
     { id: "privacy_pioneer", name: "Privacy Pioneer", description: "Unlock all achievements", icon: "🌟" },
   ]
 

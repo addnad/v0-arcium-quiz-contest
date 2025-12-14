@@ -532,7 +532,7 @@ export default function Home() {
         </div>
       )}
 
-      {appState === "games" && <GamesHub onBack={handleBackToFeatures} />}
+      {appState === "games" && <GamesHub onBack={handleBackToFeatures} username={username} />}
 
       {appState === "gmpcDaily" && <DailyCheckin onBack={handleBackToFeatures} username={username} />}
 

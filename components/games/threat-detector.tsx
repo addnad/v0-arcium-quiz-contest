@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { ArrowLeft, CheckCircle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { addScore } from "@/lib/game-storage"
+import SubmitScoreModal from "@/components/submit-score-modal"
 
 interface ThreatScenario {
   secure: string
@@ -50,8 +51,18 @@ export default function ThreatDetector({ onBack }: ThreatDetectorProps) {
   const [selectedCode, setSelectedCode] = useState<"secure" | "insecure" | null>(null)
   const [completed, setCompleted] = useState(false)
   const [shuffledOptions, setShuffledOptions] = useState<Array<{ code: string; type: "secure" | "insecure" }>>([])
+  const [showSubmitModal, setShowSubmitModal] = useState(false)
+  const [username, setUsername] = useState("")
 
   const currentScenario = scenarios[currentIndex]
+
+  useEffect(() => {
+    const profile = localStorage.getItem("arcium_user_profile")
+    if (profile) {
+      const parsed = JSON.parse(profile)
+      setUsername(parsed.username || "Player")
+    }
+  }, [])
 
   useEffect(() => {
     const options = [
@@ -77,7 +88,25 @@ export default function ThreatDetector({ onBack }: ThreatDetectorProps) {
     } else {
       setCompleted(true)
       addScore(score, "threat")
+      setShowSubmitModal(true)
     }
+  }
+
+  const handleSubmitComplete = () => {
+    console.log("[v0] handleSubmitComplete called in Threat Detector")
+    setShowSubmitModal(false)
+  }
+
+  if (completed && showSubmitModal) {
+    return (
+      <SubmitScoreModal
+        gameName="Threat Detector"
+        score={score}
+        isOpen={showSubmitModal}
+        onSubmitted={handleSubmitComplete}
+        onSkip={handleSubmitComplete}
+      />
+    )
   }
 
   if (completed) {

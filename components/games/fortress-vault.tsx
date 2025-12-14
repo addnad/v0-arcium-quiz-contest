@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { addScore } from "@/lib/game-storage"
+import { SubmitScoreModal } from "@/components/submit-score-modal"
 
 interface FortressVaultProps {
   onBack: () => void
@@ -50,6 +51,8 @@ export default function FortressVault({ onBack }: FortressVaultProps) {
   const [matches, setMatches] = useState(0)
   const [gameComplete, setGameComplete] = useState(false)
   const [totalPairs, setTotalPairs] = useState(0)
+  const [score, setScore] = useState(0)
+  const [showSubmitModal, setShowSubmitModal] = useState(false)
 
   useEffect(() => {
     if (!difficulty) {
@@ -120,7 +123,9 @@ export default function FortressVault({ onBack }: FortressVaultProps) {
             if (newMatches === totalPairs) {
               setGameComplete(true)
               const multiplier = difficulty === "easy" ? 1 : difficulty === "medium" ? 1.5 : 2
-              addScore(Math.floor((100 * multiplier) / moves), "fortressvault")
+              const calculatedScore = Math.floor((100 * multiplier) / moves)
+              setScore(calculatedScore)
+              addScore(calculatedScore, "fortressvault")
             }
             return newMatches
           })
@@ -177,6 +182,17 @@ export default function FortressVault({ onBack }: FortressVaultProps) {
           </div>
         </div>
       </div>
+    )
+  }
+
+  if (gameComplete && !showSubmitModal) {
+    return (
+      <SubmitScoreModal
+        score={score}
+        gameName="Fortress Vault"
+        onSubmitted={() => setShowSubmitModal(true)}
+        onSkip={() => setShowSubmitModal(true)}
+      />
     )
   }
 
