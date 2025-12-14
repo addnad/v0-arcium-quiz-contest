@@ -13,6 +13,7 @@ import SocialCardGenerator from "@/components/social-card-generator"
 import { AuthForm } from "@/components/auth-form"
 import StreakDisplay from "@/components/streak-display"
 import CommunityStories from "@/components/community-stories"
+import { ArciumFactCards } from "@/components/arcium-fact-cards"
 import { getQuestionsBySection, randomizeQuestionOptions, QUIZ_SECTIONS, type Question } from "@/lib/quiz-data"
 import Image from "next/image"
 import { Sparkles } from "lucide-react"
@@ -31,6 +32,7 @@ type AppState =
   | "finalResults"
   | "socialCard"
   | "communityStories"
+  | "factCards"
 
 type CompletedSection = {
   sectionId: string
@@ -99,6 +101,10 @@ export default function Home() {
 
   const handleKnowledgeQuiz = useCallback(() => {
     setAppState("quizStart")
+  }, [])
+
+  const handleFactCards = useCallback(() => {
+    setAppState("factCards")
   }, [])
 
   const handleBackToFeatures = useCallback(() => {
@@ -202,6 +208,10 @@ export default function Home() {
 
   if (appState === "communityStories") {
     return <CommunityStories username={username} onBack={() => setAppState("featureChooser")} />
+  }
+
+  if (appState === "factCards") {
+    return <ArciumFactCards onBack={() => setAppState("featureChooser")} />
   }
 
   return (
@@ -380,6 +390,32 @@ export default function Home() {
                   <div className="pt-2 lg:pt-4">
                     <span className="inline-flex items-center gap-2 text-purple-300 font-semibold text-sm group-hover:gap-3 transition-all">
                       Begin Quiz
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={handleFactCards}
+                className="group relative bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl border border-white/10 hover:border-indigo-400/50 rounded-3xl p-8 lg:p-10 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-2 duration-300"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-400/0 to-indigo-400/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="relative text-center space-y-4 lg:space-y-6">
+                  <div className="w-16 h-16 lg:w-20 lg:h-20 mx-auto bg-gradient-to-br from-indigo-400 via-purple-400 to-pink-400 rounded-2xl flex items-center justify-center text-3xl lg:text-4xl shadow-lg group-hover:shadow-indigo-400/50 transition-shadow">
+                    🃏
+                  </div>
+                  <div>
+                    <h3 className="text-xl lg:text-2xl font-bold text-white mb-2">Fact Cards</h3>
+                    <p className="text-white/60 text-xs lg:text-sm leading-relaxed">
+                      Discover fascinating facts about Arcium through interactive flip cards
+                    </p>
+                  </div>
+                  <div className="pt-2 lg:pt-4">
+                    <span className="inline-flex items-center gap-2 text-indigo-300 font-semibold text-sm group-hover:gap-3 transition-all">
+                      View Cards
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
