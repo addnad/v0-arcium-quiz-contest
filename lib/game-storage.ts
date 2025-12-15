@@ -23,6 +23,7 @@ export interface Achievement {
 const STORAGE_KEYS = {
   USER_PROFILE: "arcium_user_profile",
   ACHIEVEMENTS: "arcium_achievements",
+  FORTRESS_STORIES_READ: "arcium_fortress_stories_read",
 }
 
 // User Profile Management
@@ -52,6 +53,16 @@ export async function addScore(score: number, gameType: string): Promise<void> {
 
   // Submit to Supabase global leaderboard
   await submitScoreToSupabase(profile.username, gameType, score)
+
+  // Check for first game achievement
+  const achievements = getAchievements()
+  const hasAnyGameScore = achievements.some((a) => a.unlockedAt && a.id.includes("_pro"))
+  if (!hasAnyGameScore) {
+    unlockAchievement("first_game")
+  }
+
+  // Check game-specific achievements
+  checkGameAchievements(gameType, score)
 }
 
 // Achievement Management
@@ -135,4 +146,85 @@ export function initializeAchievements(): void {
   ]
 
   localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(defaultAchievements))
+}
+
+// Fortress Story Tracking
+export function markStoryAsRead(storyId: string): void {
+  if (typeof window === "undefined") return
+  const stored = localStorage.getItem(STORAGE_KEYS.FORTRESS_STORIES_READ)
+  const readStories: string[] = stored ? JSON.parse(stored) : []
+
+  if (!readStories.includes(storyId)) {
+    readStories.push(storyId)
+    localStorage.setItem(STORAGE_KEYS.FORTRESS_STORIES_READ, JSON.stringify(readStories))
+
+    // Check if all 5 fortress stories have been read
+    if (readStories.length >= 5) {
+      unlockAchievement("fortress_explorer")
+    }
+  }
+}
+
+export function getReadStories(): string[] {
+  if (typeof window === "undefined") return []
+  const stored = localStorage.getItem(STORAGE_KEYS.FORTRESS_STORIES_READ)
+  return stored ? JSON.parse(stored) : []
+}
+
+export function hasReadStory(storyId: string): boolean {
+  return getReadStories().includes(storyId)
+}
+
+// Game-Specific Achievement Checking
+function checkGameAchievements(gameType: string, score: number): void {
+  const achievementMap: Record<string, { threshold: number; achievementId: string }> = {
+    keycatcher: { threshold: 1000, achievementId: "key_catcher_pro" },
+    threatdetector: { threshold: 100, achievementId: "threat_detector_ace" },
+    privacypath: { threshold: 100, achievementId: "privacy_path_master" },
+    datadefender: { threshold: 100, achievementId: "data_defender_hero" },
+    spellingbee: { threshold: 100, achievementId: "spelling_bee_expert" },
+    quickfirempc: { threshold: 15, achievementId: "quick_fire_champion" },
+    fortressvault: { threshold: 100, achievementId: "fortress_vault_master" },
+    dataflow: { threshold: 100, achievementId: "data_flow_genius" },
+  }
+
+  const achievementConfig = achievementMap[gameType.toLowerCase().replace(/[^a-z]/g, "")]
+  if (achievementConfig && score >= achievementConfig.threshold) {
+    unlockAchievement(achievementConfig.achievementId)
+  }
+
+  // Check if all game achievements are unlocked
+  checkAllAchievementsUnlocked()
+}
+
+// Quiz Completion Checking
+export function checkQuizCompletion(score: number, totalQuestions: number): void {
+  if (score === totalQuestions) {
+    unlockAchievement("quiz_master")
+  }
+  checkAllAchievementsUnlocked()
+}
+
+// Daily Streak Checking
+export function checkDailyStreak(streakCount: number): void {
+  if (streakCount >= 7) {
+    unlockAchievement("daily_dedication")
+  }
+  checkAllAchievementsUnlocked()
+}
+
+// Story Submission Tracking
+export function markStorySubmitted(): void {
+  unlockAchievement("community_contributor")
+  checkAllAchievementsUnlocked()
+}
+
+// All Achievements Unlocked Checking
+function checkAllAchievementsUnlocked(): void {
+  const achievements = getAchievements()
+  const allUnlocked = achievements.filter((a) => a.id !== "privacy_pioneer").every((a) => a.unlockedAt)
+
+  if (allUnlocked) {
+    unlockAchievement("privacy_pioneer")
+  }
 }

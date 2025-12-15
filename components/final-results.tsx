@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { RotateCcw, ExternalLink, Share } from "lucide-react"
 import type { QuizSection } from "@/lib/quiz-data"
+import { checkQuizCompletion } from "@/lib/game-storage"
 
 interface CompletedSection {
   sectionId: string
@@ -37,6 +39,10 @@ export default function FinalResults({ sections, completedSections, onRetakeQuiz
     performanceMessage = "Keep Learning!"
     performanceColor = "text-orange-400"
   }
+
+  useEffect(() => {
+    checkQuizCompletion(totalScore, totalQuestions)
+  }, [totalScore, totalQuestions])
 
   const handleShareToTwitter = () => {
     const tweetText = `Just crushed the Arcium Knowledge Quiz! 🔐🚀\n\nScored ${totalScore}/${totalQuestions} (${percentage}%) on confidential computing, MPC, and encrypted applications.\n\nReady to test your arcium knowledge? Learn about the encrypted future with @1st_bernice here -- https://stayencrypted.vercel.app/\n\n#Arcium #ConfidentialComputing #Web3`

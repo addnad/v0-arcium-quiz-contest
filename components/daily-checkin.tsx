@@ -5,6 +5,7 @@ import { useState, useEffect } from "react"
 import { Check, ArrowLeft } from "lucide-react"
 import LogoScatter from "@/components/logo-scatter"
 import { createBrowserClient } from "@/lib/supabase/client"
+import { checkDailyStreak } from "@/lib/game-storage"
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -107,6 +108,9 @@ export default function DailyCheckin({ onBack, username: propUsername }: DailyCh
       newCheckedDays[currentDayIndex] = true
       setCheckedDays(newCheckedDays)
       setHasCheckedToday(true)
+
+      const streakCount = newCheckedDays.filter((day) => day).length
+      checkDailyStreak(streakCount)
 
       setShowAnimation(true)
       setTimeout(() => {

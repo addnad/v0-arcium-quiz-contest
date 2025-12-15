@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowLeft, BookOpen, X } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ArrowLeft, BookOpen, X, Clock } from "lucide-react"
 import Image from "next/image"
+import { markStoryAsRead, hasReadStory } from "@/lib/game-storage"
 
 interface FortressStoriesProps {
   onBack: () => void
@@ -86,8 +87,37 @@ Welcome to the Arcium Citadel. Your data is yours. Your life is yours. And in th
 export default function FortressStories({ onBack }: FortressStoriesProps) {
   const [selectedFortress, setSelectedFortress] = useState<string | null>(null)
   const [mobilePreview, setMobilePreview] = useState<string | null>(null)
+  const [readingTimer, setReadingTimer] = useState<number>(20)
+  const [isStoryRead, setIsStoryRead] = useState<boolean>(false)
 
   const fortress = FORTRESSES.find((f) => f.id === selectedFortress)
+
+  useEffect(() => {
+    if (!fortress) return
+
+    if (hasReadStory(fortress.id)) {
+      setIsStoryRead(true)
+      setReadingTimer(0)
+      return
+    }
+
+    setReadingTimer(20)
+    setIsStoryRead(false)
+
+    const interval = setInterval(() => {
+      setReadingTimer((prev) => {
+        if (prev <= 1) {
+          markStoryAsRead(fortress.id)
+          setIsStoryRead(true)
+          clearInterval(interval)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [selectedFortress])
 
   if (fortress) {
     return (
@@ -98,7 +128,6 @@ export default function FortressStories({ onBack }: FortressStoriesProps) {
         }}
       >
         <div className="w-full max-w-4xl">
-          {/* Back Button */}
           <button
             onClick={() => setSelectedFortress(null)}
             className="mb-8 flex items-center gap-2 text-white/80 hover:text-white transition-colors"
@@ -107,9 +136,20 @@ export default function FortressStories({ onBack }: FortressStoriesProps) {
             Back to Fortresses
           </button>
 
-          {/* Story Content */}
+          {!isStoryRead && readingTimer > 0 && (
+            <div className="mb-4 flex items-center justify-center gap-2 bg-cyan-400/20 border border-cyan-400 rounded-full px-4 py-2 text-cyan-300">
+              <Clock className="w-4 h-4" />
+              <span className="text-sm font-semibold">Reading time: {readingTimer}s remaining</span>
+            </div>
+          )}
+
+          {isStoryRead && (
+            <div className="mb-4 flex items-center justify-center gap-2 bg-green-400/20 border border-green-400 rounded-full px-4 py-2 text-green-300">
+              <span className="text-sm font-semibold">✓ Story completed!</span>
+            </div>
+          )}
+
           <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl">
-            {/* Header */}
             <div className="flex items-center gap-4 mb-8">
               <div className="w-12 h-12 relative">
                 <Image
@@ -126,12 +166,10 @@ export default function FortressStories({ onBack }: FortressStoriesProps) {
               </div>
             </div>
 
-            {/* Fortress Image */}
             <div className="relative w-full h-64 md:h-96 mb-8 rounded-2xl overflow-hidden">
               <Image src={fortress.image || "/placeholder.svg"} alt={fortress.name} fill className="object-cover" />
             </div>
 
-            {/* Story Text */}
             <div className="prose prose-invert max-w-none">
               {fortress.story.split("\n\n").map((paragraph, index) => (
                 <p key={index} className="text-white/90 leading-relaxed mb-4 text-base md:text-lg">
@@ -153,7 +191,6 @@ export default function FortressStories({ onBack }: FortressStoriesProps) {
       }}
     >
       <div className="w-full max-w-6xl">
-        {/* Back Button */}
         <button
           onClick={onBack}
           className="mb-8 group relative overflow-hidden px-6 py-3 rounded-2xl transition-all hover:scale-105"
@@ -168,7 +205,6 @@ export default function FortressStories({ onBack }: FortressStoriesProps) {
           </div>
         </button>
 
-        {/* Header */}
         <div className="flex flex-col items-center gap-8 mb-12">
           <div className="text-center space-y-4">
             <h1
@@ -188,7 +224,6 @@ export default function FortressStories({ onBack }: FortressStoriesProps) {
           </div>
         </div>
 
-        {/* Fortress Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {FORTRESSES.map((fortress) => (
             <div
@@ -199,7 +234,6 @@ export default function FortressStories({ onBack }: FortressStoriesProps) {
               }}
               onClick={() => setSelectedFortress(fortress.id)}
             >
-              {/* Fortress Image */}
               <div className="relative h-80 overflow-hidden">
                 <Image
                   src={fortress.image || "/placeholder.svg"}
@@ -245,7 +279,6 @@ export default function FortressStories({ onBack }: FortressStoriesProps) {
                 )}
               </div>
 
-              {/* Title Bar */}
               <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 to-transparent">
                 <h3 className="text-xl font-bold text-white md:group-hover:text-cyan-300 transition-colors mb-2">
                   {fortress.name}
@@ -258,7 +291,6 @@ export default function FortressStories({ onBack }: FortressStoriesProps) {
                 </button>
               </div>
 
-              {/* Hover Glow Effect */}
               <div className="absolute inset-0 opacity-0 md:group-hover:opacity-100 transition-opacity pointer-events-none">
                 <div className="absolute inset-0 bg-gradient-to-t from-cyan-400/10 via-transparent to-transparent"></div>
               </div>

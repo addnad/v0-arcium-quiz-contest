@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Send, Loader2, Wallet, AlertCircle } from "lucide-react"
+import { markStorySubmitted } from "@/lib/game-storage"
 
 interface StorySubmissionFormProps {
   username: string
@@ -53,6 +54,8 @@ export default function StorySubmissionForm({
       })
 
       if (error) throw error
+
+      markStorySubmitted()
 
       setMessage("Story submitted successfully! Awaiting moderation.")
       setFortressName("")
