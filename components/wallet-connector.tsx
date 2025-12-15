@@ -9,16 +9,73 @@ interface WalletConnectorProps {
   username: string
   onConnected: (address: string) => void // Updated to pass address
   onSkip?: () => void
+  context?: "games" | "stories"
 }
 
-export default function WalletConnector({ username, onConnected, onSkip }: WalletConnectorProps) {
+export default function WalletConnector({ username, onConnected, onSkip, context = "games" }: WalletConnectorProps) {
   const { connected, publicKey } = useWallet()
   const [showSuccess, setShowSuccess] = useState(false)
+
+  const content = {
+    games: {
+      title: "Connect Your Wallet",
+      description:
+        "Connect your Solana wallet to store encrypted score proofs onchain using Arcium's confidential computing technology",
+      features: [
+        {
+          emoji: "🔐",
+          title: "Encrypted Storage",
+          description: "Your scores are encrypted using Arcium's MPC technology",
+          color: "green",
+        },
+        {
+          emoji: "⛓️",
+          title: "Onchain Verification",
+          description: "Immutable proof of your gaming achievements",
+          color: "purple",
+        },
+        {
+          emoji: "👤",
+          title: "Privacy Preserved",
+          description: "Only you can decrypt your full score details",
+          color: "cyan",
+        },
+      ],
+      successMessage: "Your scores will now be verified onchain using Arcium's encrypted technology",
+    },
+    stories: {
+      title: "Connect Your Wallet",
+      description:
+        "Connect your Solana wallet to submit stories and vote on the community's best fortress tales using blockchain verification",
+      features: [
+        {
+          emoji: "📝",
+          title: "Verified Submissions",
+          description: "Your stories are linked to your wallet for authenticity",
+          color: "green",
+        },
+        {
+          emoji: "🗳️",
+          title: "Onchain Voting",
+          description: "Vote on stories with verifiable blockchain proof",
+          color: "purple",
+        },
+        {
+          emoji: "🏆",
+          title: "Weekly Rewards",
+          description: "Top voted stories get recognition in the Arcium community",
+          color: "cyan",
+        },
+      ],
+      successMessage: "You can now submit stories and vote on the best fortress tales!",
+    },
+  }
+
+  const activeContent = content[context]
 
   useEffect(() => {
     if (connected && publicKey) {
       setShowSuccess(true)
-      // Store wallet connection in localStorage
       localStorage.setItem(
         "arcium-wallet",
         JSON.stringify({
@@ -27,7 +84,6 @@ export default function WalletConnector({ username, onConnected, onSkip }: Walle
           connectedAt: Date.now(),
         }),
       )
-      // Wait 2 seconds to show success, then proceed
       setTimeout(() => {
         onConnected(publicKey.toString())
       }, 2000)
@@ -56,9 +112,7 @@ export default function WalletConnector({ username, onConnected, onSkip }: Walle
             </div>
             <div>
               <h3 className="text-2xl font-bold text-white mb-2">Wallet Connected!</h3>
-              <p className="text-white/70 text-sm">
-                Your scores will now be verified onchain using Arcium's encrypted technology
-              </p>
+              <p className="text-white/70 text-sm">{activeContent.successMessage}</p>
             </div>
             <div className="p-4 bg-white/5 rounded-xl border border-white/10">
               <p className="text-xs text-white/50 mb-1">Connected Address</p>
@@ -89,42 +143,25 @@ export default function WalletConnector({ username, onConnected, onSkip }: Walle
           <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-cyan-400 to-purple-400 rounded-2xl flex items-center justify-center shadow-lg">
             <Wallet className="w-10 h-10 text-white" />
           </div>
-          <h2 className="text-3xl font-bold text-white mb-3">Connect Your Wallet</h2>
-          <p className="text-white/70 text-sm leading-relaxed">
-            Connect your Solana wallet to store encrypted score proofs onchain using Arcium's confidential computing
-            technology
-          </p>
+          <h2 className="text-3xl font-bold text-white mb-3">{activeContent.title}</h2>
+          <p className="text-white/70 text-sm leading-relaxed">{activeContent.description}</p>
         </div>
 
         <div className="space-y-6">
           <div className="p-4 bg-white/5 rounded-xl border border-white/10 space-y-3">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-green-400/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-green-300 text-lg">🔐</span>
+            {activeContent.features.map((feature, index) => (
+              <div key={index} className="flex items-start gap-3">
+                <div
+                  className={`w-8 h-8 bg-${feature.color}-400/20 rounded-lg flex items-center justify-center flex-shrink-0`}
+                >
+                  <span className={`text-${feature.color}-300 text-lg`}>{feature.emoji}</span>
+                </div>
+                <div>
+                  <h4 className="text-white font-semibold text-sm mb-1">{feature.title}</h4>
+                  <p className="text-white/60 text-xs">{feature.description}</p>
+                </div>
               </div>
-              <div>
-                <h4 className="text-white font-semibold text-sm mb-1">Encrypted Storage</h4>
-                <p className="text-white/60 text-xs">Your scores are encrypted using Arcium's MPC technology</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-purple-400/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-purple-300 text-lg">⛓️</span>
-              </div>
-              <div>
-                <h4 className="text-white font-semibold text-sm mb-1">Onchain Verification</h4>
-                <p className="text-white/60 text-xs">Immutable proof of your gaming achievements</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-cyan-400/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-cyan-300 text-lg">👤</span>
-              </div>
-              <div>
-                <h4 className="text-white font-semibold text-sm mb-1">Privacy Preserved</h4>
-                <p className="text-white/60 text-xs">Only you can decrypt your full score details</p>
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className="wallet-adapter-button-container">
@@ -141,7 +178,8 @@ export default function WalletConnector({ username, onConnected, onSkip }: Walle
           )}
 
           <p className="text-xs text-white/50 text-center">
-            Playing as: <span className="text-cyan-300 font-semibold">{username}</span>
+            {context === "games" ? "Playing as: " : "Posting as: "}
+            <span className="text-cyan-300 font-semibold">{username}</span>
           </p>
         </div>
       </div>

@@ -43,7 +43,7 @@ export default function SectionIntro({ section, onStart, onBack }: SectionIntroP
             {/* Questions Info */}
             <div className={`bg-gradient-to-r ${section.color} rounded-lg p-4 mb-8`}>
               <p className="text-white font-semibold">
-                This section contains {section.questionCount} questions • 20 seconds each • Learn as you go
+                This section contains 5 questions • 20 seconds each • Learn as you go
               </p>
             </div>
 

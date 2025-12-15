@@ -105,12 +105,17 @@ export function initializeAchievements(): void {
       description: "Perfect score in Privacy Spelling Bee",
       icon: "🐝",
     },
-    { id: "quick_fire_champion", name: "Quick Fire Champion", description: "Score 800+ in Quick Fire MPC", icon: "⚡" },
+    {
+      id: "quick_fire_champion",
+      name: "Quick Fire Champion",
+      description: "Score 15/15 in Quick Fire MPC",
+      icon: "⚡",
+    },
     {
       id: "fortress_vault_master",
       name: "Fortress Vault Master",
       description: "Complete Fortress Vault perfectly",
-      icon: "🎯",
+      icon: "🏰",
     },
     {
       id: "data_flow_genius",
@@ -124,7 +129,7 @@ export function initializeAchievements(): void {
       description: "Complete 7 day GMPC check-in streak",
       icon: "📅",
     },
-    { id: "fortress_explorer", name: "Fortress Explorer", description: "Read all 5 Fortress Stories", icon: "🏰" },
+    { id: "fortress_explorer", name: "Fortress Explorer", description: "Read all 5 Fortress Stories", icon: "📖" },
     { id: "community_contributor", name: "Community Contributor", description: "Submit a fortress story", icon: "✍️" },
     { id: "privacy_pioneer", name: "Privacy Pioneer", description: "Unlock all achievements", icon: "🌟" },
   ]

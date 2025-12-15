@@ -115,6 +115,7 @@ export default function KeyCatcher({ onBack }: KeyCatcherProps) {
                   setGameActive(false)
                   setGameOver(true)
                   addScore(score, "keycatcher")
+                  setShowSubmitModal(true)
                 }
                 return false
               }
